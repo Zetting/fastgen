@@ -16,7 +16,8 @@
 >   - spring.datasource.druid.username:用户名;
 >   - spring.datasource.druid.password:密码;
 > - 3.双击startup.bat运行
-> - 4.浏览器访问:http://localhost:8011;完毕
+> - 4.浏览器访问:http://localhost:8011;
 
 
+快速开始：https://zetting.github.io/fastgen/#/
 
