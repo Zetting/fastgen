@@ -19,5 +19,5 @@
 > - 4.浏览器访问:http://localhost:8011;
 
 
-快速开始：https://zetting.github.io/fastgen/#/
+入门文档：https://zetting.github.io/fastgen/#/
 
