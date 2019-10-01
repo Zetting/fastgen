@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-button type="primary" size="mini" @click="to">生成代码</el-button>
-    <el-dialog :visible.sync="dialog" title="代码生成配置" append-to-body width="800px">
+    <el-dialog :visible.sync="dialog" title="配置" append-to-body width="800px">
       <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
         <el-table-column label="序号" width="80" align="center">
           <template slot-scope="scope">

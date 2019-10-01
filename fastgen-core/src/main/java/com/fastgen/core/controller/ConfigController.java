@@ -2,6 +2,7 @@ package com.fastgen.core.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Response;
+import com.fastgen.core.contract.vo.CfgSettings;
 import com.fastgen.core.contract.vo.GenConfig;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.util.ConfigUtil;
@@ -11,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 配置管理
@@ -35,6 +37,17 @@ public class ConfigController {
     public Response<GenConfig> getConfig() {
         GenConfig config = configUtil.getConfigBean(Contants.USER_CFG);
         return Response.success(config, "获取成功");
+    }
+
+    /**
+     * 获取自定义配置
+     *
+     * @return
+     */
+    @GetMapping("/getSettings")
+    public Response<List<CfgSettings>> getSettings() {
+        List<CfgSettings> settings= configService.getSettings();
+        return Response.success(settings, "获取成功");
     }
 
     /**

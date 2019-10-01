@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.fastgen</groupId>
-    <artifactId>fastgen-root</artifactId>
+    <artifactId>fastgen</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <url>https://github.com/Zetting/fastgen</url>
 
@@ -11,7 +11,7 @@
         <module>fastgen-core</module>
     </modules>
     <packaging>pom</packaging>
-    <name>fastgen-root</name>
+    <name>fastgen</name>
     <description>project for fastgen</description>
 
 </project>

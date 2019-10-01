@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="dialog" title="生成器配置" append-to-body width="550px">
+  <el-dialog :visible.sync="dialog" title="配置" append-to-body width="550px">
     <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px">
       <el-form-item label="作者名称" prop="author">
         <el-input v-model="form.author" style="width: 420px;"/>
@@ -48,11 +48,12 @@
 </template>
 
 <script>
-import { getFtlNames, update } from '@/api/genConfig'
+import { getFtlNames, update, getSettings } from '@/api/genConfig'
 export default {
   data() {
     return {
       loading: false, dialog: false,
+      formItems: {},
       form: { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] },
       templates: [],
       defaultTemplates: [],
@@ -83,6 +84,9 @@ export default {
       getFtlNames().then(result => {
         this.templates = result.data
         this.defaultTemplates = result.data
+      })
+      getSettings().then(result => {
+        this.formItems = result.data
       })
     },
     cancel() {

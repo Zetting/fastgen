@@ -2,6 +2,8 @@ package com.fastgen.core.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import com.fastgen.core.base.ServerException;
+import com.fastgen.core.base.cfgs.SettingMapsCfgs;
+import com.fastgen.core.contract.vo.CfgSettings;
 import com.fastgen.core.model.TemplateFtlInfo;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.base.Contants;
@@ -32,6 +34,8 @@ public class ConfigServiceImpl implements ConfigService {
     private String active;
     @Autowired
     private FreemarkerUtil freemarkerUtil;
+    @Autowired
+    private SettingMapsCfgs settingMapsCfgs;
 
 
     /**
@@ -103,6 +107,26 @@ public class ConfigServiceImpl implements ConfigService {
         List<TemplateFtlInfo> filterList = templateFtlInfos.stream().filter(
                 templateFtlInfo -> templateFtlInfo.getTemplateName().equals(ftlFileName)).collect(Collectors.toList());
         return CollectionUtils.isEmpty(filterList) ? null : filterList.get(0);
+    }
+
+    @Override
+    public List<CfgSettings> getSettings() {
+        Map<String, Map<String, String>> settingMaps = settingMapsCfgs.getMaps();
+        if (settingMaps.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<CfgSettings> cfgSettings = new ArrayList<>();
+        CfgSettings cfgSetting = null;
+        for (String key : settingMaps.keySet()) {
+            cfgSetting = new CfgSettings();
+
+            Map<String, String> settings = settingMaps.get(key);
+            cfgSetting.setKey(key);
+            cfgSetting.setName(settings.get("name"));
+            cfgSetting.setSettings(settings);
+            cfgSettings.add(cfgSetting);
+        }
+        return cfgSettings;
     }
 
     /**

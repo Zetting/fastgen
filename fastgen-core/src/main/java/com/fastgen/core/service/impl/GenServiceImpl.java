@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Contants;
 import com.fastgen.core.base.ServerException;
-import com.fastgen.core.base.cfgs.SettingsMapsCfgs;
+import com.fastgen.core.base.cfgs.CustomMapsCfgs;
 import com.fastgen.core.contract.vo.GenConfig;
 import com.fastgen.core.model.ColumnInfo;
 import com.fastgen.core.model.TableInfo;
@@ -52,7 +52,7 @@ public class GenServiceImpl implements GenService {
     @Autowired
     private FreemarkerUtil freemarkerUtil;
     @Autowired
-    private SettingsMapsCfgs settingsMapsCfgs;
+    private CustomMapsCfgs settingsMapsCfgs;
 
     @Override
     public TableInfo getTableInfo(String tableName) {
