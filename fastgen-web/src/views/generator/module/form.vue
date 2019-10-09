@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--配置-->
-    <el-dialog :visible.sync="dialog" title="生成器配置" append-to-body width="550px">
+    <el-dialog :visible.sync="dialog" title="配置" append-to-body width="550px">
       <el-form ref="form" :model="form" :rules="formRules" size="small" label-width="78px">
         <el-form-item label="作者名称" prop="author">
           <el-input v-model="form.author" style="width: 420px;"/>
@@ -31,12 +31,12 @@
               <el-input v-model="domain.componentValue"/>
             </el-col>
             <el-col :span="2">
-              <el-button size="mini" icon="el-icon-delete" @click.prevent="removeComponent(domain)"/>
+              <el-button size="mini" icon="el-icon-setting" @click.prevent="editComponent(true,domain)"/>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item prop="add">
-          <el-button size="mini" icon="el-icon-plus" @click="addComponent" />
+          <el-button size="mini" icon="el-icon-plus" @click="editComponent(false,{})" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -48,7 +48,7 @@
     <!--新增组件弹出框-->
     <el-dialog
       :visible.sync="componentFormVisible"
-      title="编辑控件"
+      :title="edited ? '编辑控件' : '新增控件'"
       append-to-body
       width="350px">
       <el-form ref="componentForm" :model="componentForm" :rules="componentRules">
@@ -65,7 +65,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="componentFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitAddComponent">确 定</el-button>
+        <el-button type="primary" @click="submitEditComponent">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -83,6 +83,7 @@ export default {
       form: { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] },
       componentFormVisible: false,
       componentForm: { componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
+      edited: false,
       templates: [],
       defaultTemplates: [],
       formRules: {
@@ -91,6 +92,9 @@ export default {
         ],
         templates: [
           { required: true, message: '模板不能为空', trigger: 'blur' }
+        ],
+        cover: [
+          { required: true, message: '是否覆盖不能为空', trigger: 'blur' }
         ]
       },
       componentRules: {
@@ -158,6 +162,28 @@ export default {
       this.form = { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] }
     },
     /**
+     * 弹出编辑控件
+     */
+    editComponent(edited, item) {
+      this.edited = edited
+      this.componentForm = item
+      if (!edited) {
+        this.componentForm = { componentLabel: '', componentName: '', placeholder: '', required: 'true' }
+      }
+      this.componentFormVisible = true
+    },
+
+    /**
+     * 提交编辑控件
+     */
+    submitEditComponent() {
+      if (this.edited) {
+        this.updateComponent()
+      } else {
+        this.saveComponent()
+      }
+    },
+    /**
      * 移除控件
      */
     removeComponent(item) {
@@ -167,23 +193,28 @@ export default {
       }
     },
     /**
-     * 新增组件
+     * 更新组件
      */
-    addComponent() {
-      this.componentForm = { componentLabel: '', componentName: '', placeholder: '', required: 'true' }
-      this.componentFormVisible = true
+    updateComponent() {
+      this.removeComponent(this.componentForm)
+      this.dynamicForm.push({
+        required: this.componentForm.required,
+        componentLabel: this.componentForm.componentLabel,
+        componentName: this.componentForm.componentName,
+        key: Date.now()
+      })
+      this.componentFormVisible = false
     },
     /**
      * 确认新增组件
      */
-    submitAddComponent() {
+    saveComponent() {
       this.$refs['componentForm'].validate((valid) => {
         if (valid) {
           this.componentFormVisible = false
           this.$set(this.formRules, this.componentForm.componentName, [
             { required: this.componentForm.required === 'true', message: this.componentForm.componentLabel + '不能为空', trigger: 'blur' }
           ])
-          debugger
           this.dynamicForm.push({
             required: this.componentForm.required,
             componentLabel: this.componentForm.componentLabel,

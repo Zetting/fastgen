@@ -9,7 +9,7 @@
         size="mini"
         type="warning"
         icon="el-icon-setting"
-        @click="to">生成器配置</el-button>
+        @click="to">配置</el-button>
       <eForm ref="form"/>
     </div>
   </div>
