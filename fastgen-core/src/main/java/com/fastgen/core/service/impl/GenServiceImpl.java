@@ -110,9 +110,9 @@ public class GenServiceImpl implements GenService {
 
     @Override
     public void gen(List<ColumnInfo> columnInfos, TableInfo tableInfo) {
-        GenConfig genConfig = configUtil.getConfigBean(Contants.USER_CFG);
+        Map<String, Object> genConfig = configUtil.getConfigBean(Contants.USER_CFG);
 
-        String templates = genConfig.getTemplates();
+        String templates = genConfig.get(Contants.FIELD_NAME_TEMPLATES) + "";
         if (templates == null || "".equals(templates)) {
             throw new ServerException("模板未选择");
         }
@@ -128,7 +128,8 @@ public class GenServiceImpl implements GenService {
 
             File file = new File(templateFtlInfo.getFilePath());
             // 如果非覆盖生成
-            if (!genConfig.getCover()) {
+            Boolean conver = (Boolean) genConfig.get(Contants.FIELD_NAME_COVER);
+            if (!conver) {
                 if (FileUtil.exist(file)) {
                     log.info("[file is exist] path = {}", templateFtlInfo.getFilePath());
                     continue;
@@ -167,38 +168,36 @@ public class GenServiceImpl implements GenService {
 
     /**
      * 设置模板变量
+     *
      * @param columnInfos
      * @param genConfig
      * @param tableInfo
      * @return
      */
-    private Map<String, Object> getTemplateValue(List<ColumnInfo> columnInfos, GenConfig genConfig, TableInfo tableInfo) {
+    private Map<String, Object> getTemplateValue(List<ColumnInfo> columnInfos, Map<String, Object> genConfig, TableInfo tableInfo) {
         String tableName = tableInfo.getTableName();
         String tableComment = tableInfo.getTableComment();
 
-        String groupName = StringUtils.isNotEmpty(genConfig.getGroupName())
-                ? genConfig.getGroupName() : tableName.split("_")[0];
-
+        String groupName = tableName.split("_")[0];//todo
 
         Map<String, Object> map = new HashMap();
-        map.put("package", genConfig.getPack());
-        map.put("packagePath", genConfig.getPack().replace(".", "//"));
+//        map.put("package", genConfig.getPack());
+//        map.put("packagePath", genConfig.getPack().replace(".", "//"));//todo
         map.put("groupName", groupName);
-        map.put("author", genConfig.getAuthor());
+        map.put("author", genConfig.get(Contants.FIELD_NAME_AUTHOR));
         map.put("date", LocalDate.now().toString());
         map.put("tableName", tableName);
         map.put("tableComment", StringUtils.removeEnd(tableComment, "表"));
-        map.put("genMode", genConfig.getGenMode());
         String className = StringUtils.toCapitalizeCamelCase(tableName);
         String changeClassName = StringUtils.toCamelCase(tableName);
 
-        // 判断是否去除表前缀
-        if (StringUtils.isNotEmpty(genConfig.getPrefix())) {
-            className = StringUtils.toCapitalizeCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
-            changeClassName = StringUtils.toCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
-        }
+//        // 判断是否去除表前缀
+//        if (StringUtils.isNotEmpty(genConfig.getPrefix())) {
+//            className = StringUtils.toCapitalizeCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
+//            changeClassName = StringUtils.toCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
+//        }
         map.put("className", className);
-        map.put("firstLowerClassName",  StrUtil.lowerFirst(className));
+        map.put("firstLowerClassName", StrUtil.lowerFirst(className));
         map.put("upperCaseClassName", className.toUpperCase());
         map.put("changeClassName", changeClassName);
         map.put("hasTimestamp", false);
@@ -252,12 +251,13 @@ public class GenServiceImpl implements GenService {
         //config
         map.putAll(JSONUtil.toBean(JSONUtil.toJsonStr(genConfig), Map.class));
 
-        String serverPath = genConfig.getServerPath().replace("\\", "\\\\");
-        String frontPath = genConfig.getFrontPath().replace("\\", "\\\\");
-        map.put("javaPath", serverPath + Contants.PREFIX_SRC_MAIN_JAVA);
-        map.put("resourcesPath", serverPath + Contants.PREFIX_SRC_MAIN_RESOURCES);
-        map.put("frontPath", frontPath);
-        map.put("serverPath", serverPath);
+
+//        String serverPath = genConfig.getServerPath().replace("\\", "\\\\");
+//        String frontPath = genConfig.getFrontPath().replace("\\", "\\\\");
+//        map.put("javaPath", serverPath + Contants.PREFIX_SRC_MAIN_JAVA);
+//        map.put("resourcesPath", serverPath + Contants.PREFIX_SRC_MAIN_RESOURCES);
+//        map.put("frontPath", frontPath);
+//        map.put("serverPath", serverPath);
 
 
         //设置自定变量

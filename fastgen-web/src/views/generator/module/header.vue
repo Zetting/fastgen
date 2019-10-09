@@ -37,6 +37,7 @@ export default {
       get().then(res => {
         var data = res.data
         _this.form = data
+        _this.dynamicForm = data.dynamicForm
         _this.form.templates = data.templates == null || data.templates === '' ? [] : data.templates.split(',')
         _this.form.cover = _this.form.cover.toString()
       })

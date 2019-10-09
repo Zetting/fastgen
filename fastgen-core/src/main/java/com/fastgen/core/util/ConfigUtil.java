@@ -12,6 +12,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Map;
 
 /**
  * 配置文件工具类
@@ -88,9 +89,9 @@ public class ConfigUtil {
      * @param configName
      * @return
      */
-    public GenConfig getConfigBean(String configName) {
+    public Map getConfigBean(String configName) {
         String configStr = getConfig(configName);
-        return JSONUtil.toBean(configStr, GenConfig.class);
+        return JSONUtil.toBean(configStr, Map.class);
     }
 
     /**
