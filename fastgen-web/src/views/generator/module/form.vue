@@ -2,7 +2,7 @@
   <div>
     <!--配置-->
     <el-dialog :visible.sync="dialog" title="生成器配置" append-to-body width="550px">
-      <el-form ref="form" :model="form" size="small" label-width="78px">
+      <el-form ref="form" :model="form" :rules="formRules" size="small" label-width="78px">
         <el-form-item label="作者名称" prop="author">
           <el-input v-model="form.author" style="width: 420px;"/>
         </el-form-item>
@@ -10,7 +10,7 @@
           <el-radio v-model="form.cover" label="true">是</el-radio>
           <el-radio v-model="form.cover" label="false">否</el-radio>
         </el-form-item>
-        <el-form-item label="模板" prop="serverTemples">
+        <el-form-item label="模板" prop="templates">
           <el-select v-model="form.templates" multiple filterable placeholder="请选择模板">
             <el-option
               v-for="item in templates"
@@ -85,21 +85,12 @@ export default {
       componentForm: { componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
       templates: [],
       defaultTemplates: [],
-      rules: {
+      formRules: {
         author: [
-          { required: true, message: '作者不为空', trigger: 'blur' }
+          { required: true, message: '作者不能为空', trigger: 'blur' }
         ],
-        pack: [
-          { required: true, message: '包路径不能为空', trigger: 'blur' }
-        ],
-        frontPath: [
-          { required: true, message: '前端代码生成路径不能为空', trigger: 'blur' }
-        ],
-        cover: [
-          { required: true, message: '不能为空', trigger: 'blur' }
-        ],
-        genMode: [
-          { required: true, message: '模式不能为空', trigger: 'blur' }
+        templates: [
+          { required: true, message: '模板不能为空', trigger: 'blur' }
         ]
       },
       componentRules: {
@@ -126,6 +117,7 @@ export default {
       this.resetForm()
     },
     doSubmit() {
+      this.handleData()
       this.$refs['form'].validate((valid) => {
         if (valid) {
           this.loading = true
@@ -136,7 +128,7 @@ export default {
       })
     },
     doUpdate() {
-      var formdata = this.getPostData()
+      var formdata = this.handleData()
       formdata.templates = formdata.templates.join(',')
       update(formdata).then(res => {
         this.resetForm()
@@ -151,9 +143,12 @@ export default {
         console.log(err.response.data.message)
       })
     },
-    getPostData() {
+    handleData() {
       var postdata = this.form
       this.$set(postdata, 'dynamicForm', this.dynamicForm)
+      this.dynamicForm.forEach(item => {
+        this.$set(postdata, item.componentName, item.componentValue)
+      })
       return postdata
     },
     resetForm() {
@@ -162,10 +157,6 @@ export default {
       this.$refs['form'].resetFields()
       this.form = { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] }
     },
-    // resetForm(formName) {
-    //   this.$refs[formName].resetFields();
-    // },
-
     /**
      * 移除控件
      */
@@ -189,6 +180,10 @@ export default {
       this.$refs['componentForm'].validate((valid) => {
         if (valid) {
           this.componentFormVisible = false
+          this.$set(this.formRules, this.componentForm.componentName, [
+            { required: this.componentForm.required === 'true', message: this.componentForm.componentLabel + '不能为空', trigger: 'blur' }
+          ])
+          debugger
           this.dynamicForm.push({
             required: this.componentForm.required,
             componentLabel: this.componentForm.componentLabel,
