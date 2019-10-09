@@ -51,8 +51,8 @@
       title="编辑控件"
       append-to-body
       width="350px">
-      <el-form :model="componentForm">
-        <el-form-item label="控件名称" prop="componentName">
+      <el-form ref="componentForm" :model="componentForm" :rules="componentRules">
+        <el-form-item label="控件名称" prop="componentLabel">
           <el-input v-model="componentForm.componentLabel" placeholder="控件名称" />
         </el-form-item>
         <el-form-item label="控件键值" prop="componentName">
@@ -100,6 +100,14 @@ export default {
         ],
         genMode: [
           { required: true, message: '模式不能为空', trigger: 'blur' }
+        ]
+      },
+      componentRules: {
+        componentLabel: [
+          { required: true, message: '控件名称不为空', trigger: 'blur' }
+        ],
+        componentName: [
+          { required: true, message: '控件键值不为空', trigger: 'blur' }
         ]
       }
     }
@@ -178,12 +186,18 @@ export default {
      * 确认新增组件
      */
     submitAddComponent() {
-      this.componentFormVisible = false
-      this.dynamicForm.push({
-        required: this.componentForm.required,
-        componentLabel: this.componentForm.componentLabel,
-        componentName: this.componentForm.componentName,
-        key: Date.now()
+      this.$refs['componentForm'].validate((valid) => {
+        if (valid) {
+          this.componentFormVisible = false
+          this.dynamicForm.push({
+            required: this.componentForm.required,
+            componentLabel: this.componentForm.componentLabel,
+            componentName: this.componentForm.componentName,
+            key: Date.now()
+          })
+        } else {
+          return false
+        }
       })
     }
   }
