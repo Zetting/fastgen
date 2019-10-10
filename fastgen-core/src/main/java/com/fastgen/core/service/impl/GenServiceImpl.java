@@ -118,19 +118,17 @@ public class GenServiceImpl implements GenService {
             throw new ServerException("模板未选择");
         }
         List<String> templateList = Arrays.asList(templates.split(Chars.COMMA));
-        Map<String, Object> templateValues = getSysVariableValue(columnInfos, genConfig, tableInfo);
-        List<TemplateFtlInfo> templateFtlInfos = configService.templateInfos(templateValues);
-
+        Map<String, Object> variableMaps = getSysVariableValue(columnInfos, genConfig, tableInfo);
         for (String templateName : templateList) {
-            TemplateFtlInfo templateFtlInfo = configService.getTemplateFtlInfo(templateFtlInfos, templateName);
+            TemplateFtlInfo templateFtlInfo = configService.getTemplateInfo(variableMaps, templateName);
             if (Objects.isNull(templateFtlInfo)) {
                 continue;
             }
 
             File file = new File(templateFtlInfo.getFilePath());
             // 如果非覆盖生成
-            Boolean conver = (Boolean) genConfig.get(Contants.FIELD_NAME_COVER);
-            if (!conver) {
+            String conver = (String) genConfig.get(Contants.FIELD_NAME_COVER);
+            if (!conver.equals("true")) {
                 if (FileUtil.exist(file)) {
                     log.info("[file is exist] path = {}", templateFtlInfo.getFilePath());
                     continue;
@@ -144,9 +142,10 @@ public class GenServiceImpl implements GenService {
 
             String finalFileContent = "";
             try {
-                finalFileContent = freemarkerUtil.parse(templateFtlInfo.getTemplateContent(), templateValues);
+                finalFileContent = freemarkerUtil.parse(templateFtlInfo.getTemplateContent(), variableMaps);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("转换异常", e);
+                throw new ServerException("转换异常");
             }
 
             // 生成代码
