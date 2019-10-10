@@ -1,33 +1,11 @@
-# SHOW TIME
-
-> 请科学上网
-
----
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/MAshLFlBRLU" frameborder="0" allowfullscreen></iframe>
-
-
----
-<iframe width="560" height="315" src="https://www.youtube.com/embed/HhDEQSb2nAY" frameborder="0" allowfullscreen></iframe>
-
----
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Zk6Psbxhvtc" frameborder="0" allowfullscreen></iframe>
-
----
-
-
-
-
+# 联系我
 ----------
-# CONTACT
-> - [微博](http://weibo.com/crossoverJie "微博")
-> - [GitHub](https://github.com/crossoverJie "github")
-> - [crossoverJie@gmail.com](mailto:crossoverjie@gmail.com)
+# 关注我
+> - [简书](https://www.jianshu.com/u/d78eea897ed6)
+> - [GitHub](https://github.com/Zetting/fastgen)
+> - 邮箱:1533465874@qq.com
 
-[![QQ群](https://img.shields.io/badge/QQ%E7%BE%A4-787381170-yellowgreen.svg)](https://jq.qq.com/?_wv=1027&k=5HPYvQk)
+** 觉得不错，请请我喝杯咖啡，给点鼓励，嘻嘻**
 
-**欢迎我的关注公众号一起交流：**
-
-![](https://crossoverjie.top/uploads/weixinfooter1.jpg)
+![](_images/微信收款码.png)
 
