@@ -21,7 +21,6 @@
             </el-select>
           </el-tooltip>
         </el-form-item>
-
         <!--动态控件-->
         <el-form-item
           v-for="(domain) in dynamicForm"
@@ -88,20 +87,9 @@
       return {
         dynamicForm: [],
         loading: false, dialog: false,
-        form: {
-          author: '',
-          pack: '',
-          frontPath: '',
-          groupName: '',
-          serverPath: '',
-          cover: 'false',
-          genMode: '',
-          remark: '',
-          prefix: '',
-          templates: []
-        },
+        form: { author: '', cover: 'false', templates: [] },
         componentFormVisible: false,
-        componentForm: {componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: ''},
+        componentForm: { componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
         edited: false,
         templates: [],
         defaultTemplates: [],
@@ -129,12 +117,14 @@
           this.defaultTemplates = result.data
         })
       },
+
       /**
        * 取消
        */
       cancel() {
         this.resetForm()
       },
+
       /**
        * 提交
        */
@@ -149,6 +139,7 @@
           }
         })
       },
+
       /**
        * 更新
        */
@@ -168,6 +159,7 @@
           console.log(err.response.data.message)
         })
       },
+
       /**
        * 处理动态表单
        */
@@ -179,6 +171,7 @@
         })
         return postdata
       },
+
       /**
        *重置表单
        */
@@ -188,6 +181,7 @@
         this.$refs['form'].resetFields()
         this.form = {author: '', cover: 'false', templates: []}
       },
+
       /**
        * 弹出编辑控件
        */
@@ -199,6 +193,7 @@
         }
         this.componentFormVisible = true
       },
+
       /**
        * 提交编辑控件
        */
@@ -209,6 +204,7 @@
           this.saveComponent()
         }
       },
+
       /**
        * 移除控件
        */
@@ -219,12 +215,14 @@
         }
         this.componentFormVisible = false
       },
+
       /**
        * 取消
        */
       cancelComponent() {
         this.componentFormVisible = false
       },
+
       /**
        * 更新组件
        */
@@ -244,6 +242,7 @@
           ])
         })
       },
+
       /**
        * 确认新增组件
        */
@@ -269,6 +268,7 @@
           }
         })
       },
+
       /**
        * 获取初始校验数据
        */
@@ -281,7 +281,7 @@
             {required: true, message: '模板不能为空', trigger: 'blur'}
           ],
           cover: [
-            {required: true, message: '是否覆盖不能为空', trigger: 'blur'}
+            { required: true, message: '是否覆盖不能为空', trigger: 'blur'}
           ]
         }
         return rules
