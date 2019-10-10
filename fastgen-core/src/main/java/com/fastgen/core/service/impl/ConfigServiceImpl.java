@@ -2,8 +2,6 @@ package com.fastgen.core.service.impl;
 
 import cn.hutool.core.io.FileUtil;
 import com.fastgen.core.base.ServerException;
-import com.fastgen.core.base.cfgs.SettingMapsCfgs;
-import com.fastgen.core.contract.vo.CfgSettings;
 import com.fastgen.core.model.TemplateFtlInfo;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.base.Contants;
@@ -34,8 +32,6 @@ public class ConfigServiceImpl implements ConfigService {
     private String active;
     @Autowired
     private FreemarkerUtil freemarkerUtil;
-    @Autowired
-    private SettingMapsCfgs settingMapsCfgs;
 
 
     /**
@@ -82,7 +78,7 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public List<TemplateFtlInfo> templateInfos(Map<String, Object> templateValue) {
+    public List<TemplateFtlInfo> templateInfos(Map<String, Object> variableMaps) {
         String templatePath = getTemplatePath();
         String[] templates = new File(templatePath).list();
         if (templates == null || templates.length == 0) {
@@ -91,42 +87,12 @@ public class ConfigServiceImpl implements ConfigService {
         List<TemplateFtlInfo> templateFtlInfos = new ArrayList<>();
         TemplateFtlInfo templateFtlInfo = null;
         for (String template : templates) {
-            templateFtlInfo = getTemplateInfo(templateValue, template);
+            templateFtlInfo = getTemplateInfo(variableMaps, template);
             if (Objects.nonNull(templateFtlInfo)) {
                 templateFtlInfos.add(templateFtlInfo);
             }
         }
         return templateFtlInfos;
-    }
-
-    @Override
-    public TemplateFtlInfo getTemplateFtlInfo(List<TemplateFtlInfo> templateFtlInfos, String ftlFileName) {
-        if (CollectionUtils.isEmpty(templateFtlInfos)) {
-            return null;
-        }
-        List<TemplateFtlInfo> filterList = templateFtlInfos.stream().filter(
-                templateFtlInfo -> templateFtlInfo.getTemplateName().equals(ftlFileName)).collect(Collectors.toList());
-        return CollectionUtils.isEmpty(filterList) ? null : filterList.get(0);
-    }
-
-    @Override
-    public List<CfgSettings> getSettings() {
-        Map<String, Map<String, String>> settingMaps = settingMapsCfgs.getMaps();
-        if (settingMaps.size() == 0) {
-            return Collections.emptyList();
-        }
-        List<CfgSettings> cfgSettings = new ArrayList<>();
-        CfgSettings cfgSetting = null;
-        for (String key : settingMaps.keySet()) {
-            cfgSetting = new CfgSettings();
-
-            Map<String, String> settings = settingMaps.get(key);
-            cfgSetting.setKey(key);
-            cfgSetting.setName(settings.get("name"));
-            cfgSetting.setSettings(settings);
-            cfgSettings.add(cfgSetting);
-        }
-        return cfgSettings;
     }
 
     /**
@@ -135,8 +101,8 @@ public class ConfigServiceImpl implements ConfigService {
      * @param templateFtlName 模板名称
      * @return
      */
-    private TemplateFtlInfo getTemplateInfo(Map<String, Object> templateValue, String templateFtlName) {
-        TemplateConfig templateConfig = getFtlConfigInfo(templateFtlName, templateValue);
+    public TemplateFtlInfo getTemplateInfo(Map<String, Object> variableMaps, String templateFtlName) {
+        TemplateConfig templateConfig = getFtlConfigInfo(templateFtlName, variableMaps);
         Properties properties = PropertiesUtil.contentToProperties(templateConfig.getConfigStr());
         String enable = properties.getProperty(Contants.FTL_CONFIG_ENABLE);
         TemplateFtlInfo templateFtlInfo = null;

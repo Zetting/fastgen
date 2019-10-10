@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.cfgs.FieldMapsCfgs;
-import com.fastgen.core.contract.vo.GenConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,6 +11,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Map;
 
 /**
  * 配置文件工具类
@@ -88,9 +88,9 @@ public class ConfigUtil {
      * @param configName
      * @return
      */
-    public GenConfig getConfigBean(String configName) {
+    public Map getConfigBean(String configName) {
         String configStr = getConfig(configName);
-        return JSONUtil.toBean(configStr, GenConfig.class);
+        return JSONUtil.toBean(configStr, Map.class);
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.fastgen.core.service;
 
-import com.fastgen.core.contract.vo.CfgSettings;
 import com.fastgen.core.model.TemplateFtlInfo;
 
 import java.util.List;
@@ -25,20 +24,15 @@ public interface ConfigService {
      *
      * @return
      */
-    List<TemplateFtlInfo> templateInfos(Map<String, Object> templateValue);
+    List<TemplateFtlInfo> templateInfos(Map<String, Object> variableMaps);
+
 
     /**
-     * 根据文件名获取指定配置
+     * 获取模板配置信息
      *
-     * @param ftlFileName
+     * @param variableMaps    系统变量
+     * @param templateFtlName 模板ftl名称
      * @return
      */
-    TemplateFtlInfo getTemplateFtlInfo(List<TemplateFtlInfo> templateFtlInfos, String ftlFileName);
-
-    /**
-     * 获取自定义配置
-     *
-     * @return
-     */
-    List<CfgSettings> getSettings();
+    TemplateFtlInfo getTemplateInfo(Map<String, Object> variableMaps, String templateFtlName);
 }
