@@ -110,8 +110,6 @@ export default {
         this.templates = result.data
         this.defaultTemplates = result.data
       })
-
-      this.formRules = this.getInitRules()
     },
     /**
      * 取消
