@@ -1,127 +1,293 @@
 <template>
-  <el-dialog :visible.sync="dialog" title="生成器配置" append-to-body width="550px">
-    <el-form ref="form" :model="form" :rules="rules" size="small" label-width="78px">
-      <el-form-item label="作者名称" prop="author">
-        <el-input v-model="form.author" style="width: 420px;"/>
-      </el-form-item>
-      <el-form-item label="去表前缀" prop="prefix">
-        <el-input v-model="form.prefix" placeholder="默认不去除表前缀" style="width: 420px;"/>
-      </el-form-item>
-      <el-form-item label="分组" prop="groupName">
-        <el-input v-model="form.groupName" placeholder="默认采用表前缀" style="width: 420px;"/>
-      </el-form-item>
-      <el-form-item label="后台路径" prop="moduleName">
-        <el-input v-model="form.serverPath" placeholder="默认当前项目" style="width: 420px;"/>
-      </el-form-item>
-      <el-form-item label="至于包下" prop="pack">
-        <el-input v-model="form.pack" style="width: 420px;"/>
-      </el-form-item>
-      <el-form-item label="前端路径" prop="frontPath">
-        <el-input v-model="form.frontPath" style="width: 420px;"/>
-      </el-form-item>
-      <el-form-item label="是否覆盖" prop="cover">
-        <el-radio v-model="form.cover" label="true">是</el-radio>
-        <el-radio v-model="form.cover" label="false">否</el-radio>
-      </el-form-item>
-      <el-form-item label="生成模式" prop="genMode">
-        <el-radio v-model="form.genMode" label="admin">后台管理</el-radio>
-        <el-radio v-model="form.genMode" label="api">Api接口</el-radio>
-      </el-form-item>
-      <el-form-item label="模板" prop="serverTemples">
-        <el-select v-model="form.templates" multiple filterable placeholder="请选择模板">
-          <el-option
-            v-for="item in templates"
-            :key="item"
-            :label="item"
-            :value="item"/>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="备注" prop="remark">
-        <el-input v-model="form.remark" style="width: 420px;"/>
-      </el-form-item>
-    </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button type="text" @click="cancel">取消</el-button>
-      <el-button :loading="loading" type="primary" @click="doSubmit">确认</el-button>
-    </div>
-  </el-dialog>
+  <div>
+    <!--配置-->
+    <el-dialog :visible.sync="dialog" title="配置" append-to-body width="550px">
+      <el-form ref="form" :model="form" :rules="formRules" size="small" label-width="78px">
+        <el-form-item label="作者名称" prop="author">
+          <el-input v-model="form.author" style="width: 400px;"/>
+        </el-form-item>
+        <el-form-item label="是否覆盖" prop="cover">
+            <el-radio v-model="form.cover" label="true">是</el-radio>
+            <el-radio v-model="form.cover" label="false">否</el-radio>
+        </el-form-item>
+        <el-form-item label="模板" prop="templates">
+          <el-tooltip class="item" effect="light" content="该选项选择的模板才会生成代码，否则不生成" placement="right-start">
+            <el-select v-model="form.templates" multiple filterable placeholder="请选择模板">
+              <el-option
+                v-for="item in templates"
+                :key="item"
+                :label="item"
+                :value="item"/>
+            </el-select>
+          </el-tooltip>
+        </el-form-item>
+        <!--动态控件-->
+        <el-form-item
+          v-for="(domain) in dynamicForm"
+          :label="domain.componentLabel"
+          :key="domain.key"
+          :prop="domain.componentName">
+          <el-row>
+            <el-col :span="20">
+              <el-input v-model="domain.componentValue"/>
+            </el-col>
+            <el-col :span="2">
+              <el-tooltip class="item" effect="light" content="修改/删除配置项" placement="right-start">
+                <el-button size="mini" icon="el-icon-edit" @click.prevent="editComponent(true,domain)"/>
+              </el-tooltip>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <el-form-item prop="add">
+          <el-tooltip class="item" effect="light" content="新增配置项" placement="right-start">
+            <el-button size="mini" icon="el-icon-plus" @click="editComponent(false,{})"/>
+          </el-tooltip>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="text" @click="cancel">取消</el-button>
+        <el-button :loading="loading" type="primary" @click="doSubmit()">确认</el-button>
+      </div>
+    </el-dialog>
+
+    <!--新增组件弹出框-->
+    <el-dialog
+      :visible.sync="componentFormVisible"
+      :title="edited ? '编辑控件' : '新增控件'"
+      append-to-body
+      width="350px">
+      <el-form ref="componentForm" :model="componentForm" :rules="componentRules">
+        <el-form-item label="控件名称" prop="componentLabel">
+          <el-input v-model="componentForm.componentLabel" placeholder="控件名称"/>
+        </el-form-item>
+        <el-form-item label="控件键值" prop="componentName">
+          <el-input v-model="componentForm.componentName" placeholder="控件键值"/>
+        </el-form-item>
+        <el-form-item label="是否必填" prop="required">
+          <el-radio v-model="componentForm.required" label="true">是</el-radio>
+          <el-radio v-model="componentForm.required" label="false">否</el-radio>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button v-if="edited" @click="removeComponent">删除</el-button>
+        <el-button v-if="!edited" @click="cancelComponent">取消</el-button>
+        <el-button type="primary" @click="submitEditComponent">确 定</el-button>
+      </div>
+    </el-dialog>
+
+  </div>
+
 </template>
 
 <script>
-import { getFtlNames, update } from '@/api/genConfig'
-export default {
-  data() {
-    return {
-      loading: false, dialog: false,
-      form: { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] },
-      templates: [],
-      defaultTemplates: [],
-      rules: {
-        author: [
-          { required: true, message: '作者不能为空', trigger: 'blur' }
-        ],
-        pack: [
-          { required: true, message: '包路径不能为空', trigger: 'blur' }
-        ],
-        frontPath: [
-          { required: true, message: '前端代码生成路径不能为空', trigger: 'blur' }
-        ],
-        cover: [
-          { required: true, message: '不能为空', trigger: 'blur' }
-        ],
-        genMode: [
-          { required: true, message: '模式不能为空', trigger: 'blur' }
-        ]
+  import {getFtlNames, update} from '@/api/genConfig'
+
+  export default {
+    data() {
+      return {
+        dynamicForm: [],
+        loading: false, dialog: false,
+        form: { author: '', cover: 'false', templates: [] },
+        componentFormVisible: false,
+        componentForm: { componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
+        edited: false,
+        templates: [],
+        defaultTemplates: [],
+        formRules: {},
+        componentRules: {
+          componentLabel: [
+            {required: true, message: '控件名称不为空', trigger: 'blur'}
+          ],
+          componentName: [
+            {required: true, message: '控件键值不为空', trigger: 'blur'}
+          ]
+        }
+      }
+    },
+    created() {
+      this.initData()
+    },
+    methods: {
+      /**
+       * 初始化
+       */
+      initData() {
+        getFtlNames().then(result => {
+          this.templates = result.data
+          this.defaultTemplates = result.data
+        })
+      },
+
+      /**
+       * 取消
+       */
+      cancel() {
+        this.resetForm()
+      },
+
+      /**
+       * 提交
+       */
+      doSubmit() {
+        this.handleData()
+        this.$refs['form'].validate((valid) => {
+          if (valid) {
+            this.loading = true
+            this.doUpdate()
+          } else {
+            return false
+          }
+        })
+      },
+
+      /**
+       * 更新
+       */
+      doUpdate() {
+        var formdata = this.handleData()
+        formdata.templates = formdata.templates.join(',')
+        update(formdata).then(res => {
+          this.resetForm()
+          this.$notify({
+            title: '更新成功',
+            type: 'success',
+            duration: 2500
+          })
+          this.loading = false
+        }).catch(err => {
+          this.loading = false
+          console.log(err.response.data.message)
+        })
+      },
+
+      /**
+       * 处理动态表单
+       */
+      handleData() {
+        var postdata = this.form
+        this.$set(postdata, 'dynamicForm', this.dynamicForm)
+        this.dynamicForm.forEach(item => {
+          this.$set(postdata, item.componentName, item.componentValue)
+        })
+        return postdata
+      },
+
+      /**
+       *重置表单
+       */
+      resetForm() {
+        this.dialog = false
+        this.templates = this.defaultTemplates
+        this.$refs['form'].resetFields()
+        this.form = {author: '', cover: 'false', templates: []}
+      },
+
+      /**
+       * 弹出编辑控件
+       */
+      editComponent(edited, item) {
+        this.edited = edited
+        this.componentForm = item
+        if (!edited) {
+          this.componentForm = {componentLabel: '', componentName: '', placeholder: '', required: 'true'}
+        }
+        this.componentFormVisible = true
+      },
+
+      /**
+       * 提交编辑控件
+       */
+      submitEditComponent() {
+        if (this.edited) {
+          this.updateComponent()
+        } else {
+          this.saveComponent()
+        }
+      },
+
+      /**
+       * 移除控件
+       */
+      removeComponent() {
+        var index = this.dynamicForm.indexOf(this.componentForm)
+        if (index !== -1) {
+          this.dynamicForm.splice(index, 1)
+        }
+        this.componentFormVisible = false
+      },
+
+      /**
+       * 取消
+       */
+      cancelComponent() {
+        this.componentFormVisible = false
+      },
+
+      /**
+       * 更新组件
+       */
+      updateComponent() {
+        this.handleData()
+        var index = this.dynamicForm.indexOf(this.componentForm)
+        this.dynamicForm[index].required = this.componentForm.required
+        this.dynamicForm[index].componentLabel = this.componentForm.componentLabel
+        this.dynamicForm[index].componentName = this.componentForm.componentName
+        this.dynamicForm[index].key = this.dynamicForm[index].key
+        this.componentFormVisible = false
+
+        this.formRules = this.getInitRules()
+        this.dynamicForm.forEach(item => {
+          this.$set(this.formRules, item.componentName, [
+            {required: item.required === 'true', message: item.componentLabel + '不能为空', trigger: 'blur'}
+          ])
+        })
+      },
+
+      /**
+       * 确认新增组件
+       */
+      saveComponent() {
+        this.$refs['componentForm'].validate((valid) => {
+          if (valid) {
+            this.componentFormVisible = false
+            this.$set(this.formRules, this.componentForm.componentName, [
+              {
+                required: this.componentForm.required === 'true',
+                message: this.componentForm.componentLabel + '不能为空',
+                trigger: 'blur'
+              }
+            ])
+            this.dynamicForm.push({
+              required: this.componentForm.required,
+              componentLabel: this.componentForm.componentLabel,
+              componentName: this.componentForm.componentName,
+              key: Date.now()
+            })
+          } else {
+            return false
+          }
+        })
+      },
+
+      /**
+       * 获取初始校验数据
+       */
+      getInitRules() {
+        var rules = {
+          author: [
+            {required: true, message: '作者不能为空', trigger: 'blur'}
+          ],
+          templates: [
+            {required: true, message: '模板不能为空', trigger: 'blur'}
+          ],
+          cover: [
+            { required: true, message: '是否覆盖不能为空', trigger: 'blur'}
+          ]
+        }
+        return rules
       }
     }
-  },
-  created() {
-    this.initData()
-  },
-  methods: {
-    initData() {
-      getFtlNames().then(result => {
-        this.templates = result.data
-        this.defaultTemplates = result.data
-      })
-    },
-    cancel() {
-      this.resetForm()
-    },
-    doSubmit() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          this.loading = true
-          this.doUpdate()
-        } else {
-          return false
-        }
-      })
-    },
-    doUpdate() {
-      var formdata = this.form
-      formdata.templates = formdata.templates.join(',')
-      update(formdata).then(res => {
-        this.resetForm()
-        this.$notify({
-          title: '更新成功',
-          type: 'success',
-          duration: 2500
-        })
-        this.loading = false
-      }).catch(err => {
-        this.loading = false
-        console.log(err.response.data.message)
-      })
-    },
-    resetForm() {
-      this.dialog = false
-      this.templates = this.defaultTemplates
-      this.$refs['form'].resetFields()
-      this.form = { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] }
-    }
   }
-}
 </script>
 
 <style scoped>

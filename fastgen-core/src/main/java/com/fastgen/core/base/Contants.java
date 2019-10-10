@@ -23,4 +23,10 @@ public class Contants {
     public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";//临时目录
     public static final String PREFIX_SRC_MAIN_JAVA = "\\\\src\\\\main\\\\java";//java所在目录
     public static final String PREFIX_SRC_MAIN_RESOURCES = "\\\\src\\\\main\\\\resources"; //resources所在目录
+
+
+    public static final String FIELD_NAME_TEMPLATES="templates";//字段名:模板
+    public static final String FIELD_NAME_COVER="cover";//字段名:是否覆盖
+    public static final String FIELD_NAME_AUTHOR="author";//字段名:作者
+    public static final String FIELD_NAME_DYNAMICFORM="dynamicForm";//:字段名:动态组件
 }

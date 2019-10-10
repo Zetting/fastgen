@@ -44,10 +44,10 @@ module.exports = {
 
   build: {
     // Template for index.html
-    index: path.resolve(__dirname, '../../gen-core/src/main/resources/index.html'),
+    index: path.resolve(__dirname, '../../fastgen-core/src/main/resources/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../../gen-core/src/main/resources'),
+    assetsRoot: path.resolve(__dirname, '../../fastgen-core/src/main/resources'),
     assetsSubDirectory: 'static',
 
     /**

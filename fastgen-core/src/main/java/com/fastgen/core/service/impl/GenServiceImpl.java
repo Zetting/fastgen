@@ -5,8 +5,9 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Contants;
 import com.fastgen.core.base.ServerException;
-import com.fastgen.core.base.cfgs.SettingsMapsCfgs;
-import com.fastgen.core.contract.vo.GenConfig;
+import com.fastgen.core.base.SysVariableEnum;
+import com.fastgen.core.base.cfgs.CustomMapsCfgs;
+import com.fastgen.core.contract.DynamicFormConfigVO;
 import com.fastgen.core.model.ColumnInfo;
 import com.fastgen.core.model.TableInfo;
 import com.fastgen.core.model.TemplateFtlInfo;
@@ -52,7 +53,7 @@ public class GenServiceImpl implements GenService {
     @Autowired
     private FreemarkerUtil freemarkerUtil;
     @Autowired
-    private SettingsMapsCfgs settingsMapsCfgs;
+    private CustomMapsCfgs customMapsCfgs;
 
     @Override
     public TableInfo getTableInfo(String tableName) {
@@ -110,25 +111,24 @@ public class GenServiceImpl implements GenService {
 
     @Override
     public void gen(List<ColumnInfo> columnInfos, TableInfo tableInfo) {
-        GenConfig genConfig = configUtil.getConfigBean(Contants.USER_CFG);
+        Map<String, Object> genConfig = configUtil.getConfigBean(Contants.USER_CFG);
 
-        String templates = genConfig.getTemplates();
+        String templates = genConfig.get(Contants.FIELD_NAME_TEMPLATES) + "";
         if (templates == null || "".equals(templates)) {
             throw new ServerException("模板未选择");
         }
         List<String> templateList = Arrays.asList(templates.split(Chars.COMMA));
-        Map<String, Object> templateValues = getTemplateValue(columnInfos, genConfig, tableInfo);
-        List<TemplateFtlInfo> templateFtlInfos = configService.templateInfos(templateValues);
-
+        Map<String, Object> variableMaps = getSysVariableValue(columnInfos, genConfig, tableInfo);
         for (String templateName : templateList) {
-            TemplateFtlInfo templateFtlInfo = configService.getTemplateFtlInfo(templateFtlInfos, templateName);
+            TemplateFtlInfo templateFtlInfo = configService.getTemplateInfo(variableMaps, templateName);
             if (Objects.isNull(templateFtlInfo)) {
                 continue;
             }
 
             File file = new File(templateFtlInfo.getFilePath());
             // 如果非覆盖生成
-            if (!genConfig.getCover()) {
+            String conver = (String) genConfig.get(Contants.FIELD_NAME_COVER);
+            if (!conver.equals("true")) {
                 if (FileUtil.exist(file)) {
                     log.info("[file is exist] path = {}", templateFtlInfo.getFilePath());
                     continue;
@@ -142,9 +142,10 @@ public class GenServiceImpl implements GenService {
 
             String finalFileContent = "";
             try {
-                finalFileContent = freemarkerUtil.parse(templateFtlInfo.getTemplateContent(), templateValues);
+                finalFileContent = freemarkerUtil.parse(templateFtlInfo.getTemplateContent(), variableMaps);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("转换异常", e);
+                throw new ServerException("转换异常");
             }
 
             // 生成代码
@@ -166,114 +167,158 @@ public class GenServiceImpl implements GenService {
     }
 
     /**
-     * 设置模板变量
+     * 获取系统变量
+     *
      * @param columnInfos
      * @param genConfig
      * @param tableInfo
      * @return
      */
-    private Map<String, Object> getTemplateValue(List<ColumnInfo> columnInfos, GenConfig genConfig, TableInfo tableInfo) {
+    private Map<String, Object> getSysVariableValue(List<ColumnInfo> columnInfos, Map<String, Object> genConfig, TableInfo tableInfo) {
         String tableName = tableInfo.getTableName();
         String tableComment = tableInfo.getTableComment();
 
-        String groupName = StringUtils.isNotEmpty(genConfig.getGroupName())
-                ? genConfig.getGroupName() : tableName.split("_")[0];
+        String groupName = tableName.split("_")[0];//todo
 
-
-        Map<String, Object> map = new HashMap();
-        map.put("package", genConfig.getPack());
-        map.put("packagePath", genConfig.getPack().replace(".", "//"));
-        map.put("groupName", groupName);
-        map.put("author", genConfig.getAuthor());
-        map.put("date", LocalDate.now().toString());
-        map.put("tableName", tableName);
-        map.put("tableComment", StringUtils.removeEnd(tableComment, "表"));
-        map.put("genMode", genConfig.getGenMode());
+        //常规变量
+        Map<String, Object> variableMaps = new HashMap();
+        variableMaps.put(SysVariableEnum.GROUP_NAME.getName(), groupName);
+        variableMaps.put(SysVariableEnum.AUTHOR.getName(), genConfig.get(Contants.FIELD_NAME_AUTHOR));
+        variableMaps.put(SysVariableEnum.DATE.getName(), LocalDate.now().toString());
+        variableMaps.put(SysVariableEnum.TABLE_NAME.getName(), tableName);
+        variableMaps.put(SysVariableEnum.TABLE_COMMENT.getName(), StringUtils.removeEnd(tableComment, "表"));
         String className = StringUtils.toCapitalizeCamelCase(tableName);
         String changeClassName = StringUtils.toCamelCase(tableName);
+        variableMaps.put(SysVariableEnum.CLASS_NAME.getName(), className);
+        variableMaps.put(SysVariableEnum.FIRST_LOWER_CLASS_NAME.getName(), StrUtil.lowerFirst(className));
+        variableMaps.put(SysVariableEnum.UPPER_CASE_CLASS_NAME.getName(), className.toUpperCase());
+        variableMaps.put(SysVariableEnum.CAMEL_CASE_CLASS_NAME.getName(), changeClassName);
+        variableMaps.put(SysVariableEnum.HAS_TIMESTAMP.getName(), false);
+        variableMaps.put(SysVariableEnum.HAS_BIGDECIMAL.getName(), false);
+        variableMaps.put(SysVariableEnum.HAS_QUERY.getName(), false);
+        variableMaps.put(SysVariableEnum.HAS_AUTO.getName(), false);
 
-        // 判断是否去除表前缀
-        if (StringUtils.isNotEmpty(genConfig.getPrefix())) {
-            className = StringUtils.toCapitalizeCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
-            changeClassName = StringUtils.toCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
-        }
-        map.put("className", className);
-        map.put("firstLowerClassName",  StrUtil.lowerFirst(className));
-        map.put("upperCaseClassName", className.toUpperCase());
-        map.put("changeClassName", changeClassName);
-        map.put("hasTimestamp", false);
-        map.put("hasBigDecimal", false);
-        map.put("hasQuery", false);
-        map.put("auto", false);
-
+        //列变量
         List<Map<String, Object>> columns = new ArrayList<>();
         List<Map<String, Object>> queryColumns = new ArrayList<>();
         for (ColumnInfo column : columnInfos) {
             Map<String, Object> listMap = new HashMap();
-            listMap.put("columnComment", column.getColumnComment());
-            listMap.put("columnKey", column.getColumnKey());
+            listMap.put(SysVariableEnum.COLUMN_COLUMN_COMMENT.getName(), column.getColumnComment());
+            listMap.put(SysVariableEnum.COLUMN_COLUMN_KEY.getName(), column.getColumnKey());
 
             String colType = configUtil.cloToJava(column.getColumnType().toString());
-            String changeColumnName = StringUtils.toCamelCase(column.getColumnName().toString());
+            String camelCaseColumnName = StringUtils.toCamelCase(column.getColumnName().toString());
             String capitalColumnName = StringUtils.toCapitalizeCamelCase(column.getColumnName().toString());
             String underScoreCaseColumnName = StringUtils.toUnderScoreCase(column.getColumnName().toString());
             if (PK.equals(column.getColumnKey())) {
-                map.put("pkColumnType", colType);
-                map.put("pkChangeColName", changeColumnName);
-                map.put("pkCapitalColName", capitalColumnName);
+                variableMaps.put(SysVariableEnum.COLUMN_PKCOLUMNTYPE.getName(), colType);
+                variableMaps.put(SysVariableEnum.COLUMN_PKCOLCAMELCASENAME.getName(), camelCaseColumnName);
+                variableMaps.put(SysVariableEnum.COLUMN_PKCAPITALCOLNAME.getName(), capitalColumnName);
             }
             if (TIMESTAMP.equals(colType)) {
-                map.put("hasTimestamp", true);
+                variableMaps.put(SysVariableEnum.HAS_TIMESTAMP.getName(), true);
             }
             if (BIGDECIMAL.equals(colType)) {
-                map.put("hasBigDecimal", true);
+                variableMaps.put(SysVariableEnum.HAS_BIGDECIMAL.getName(), true);
             }
             if (EXTRA.equals(column.getExtra())) {
-                map.put("auto", true);
+                variableMaps.put(SysVariableEnum.HAS_AUTO.getName(), true);
             }
-            listMap.put("columnType", colType);
-            listMap.put("columnName", column.getColumnName());
-            listMap.put("isNullable", column.getIsNullable());
-            listMap.put("columnShow", column.getColumnShow());
-            listMap.put("changeColumnName", changeColumnName);
-            listMap.put("capitalColumnName", capitalColumnName);
-            listMap.put("underScoreCaseColumnName", underScoreCaseColumnName);
+            listMap.put(SysVariableEnum.COLUMN_COLUMNTYPE.getName(), colType);
+            listMap.put(SysVariableEnum.COLUMN_COLUMNNAME.getName(), column.getColumnName());
+            listMap.put(SysVariableEnum.COLUMN_ISNULLABLE.getName(), column.getIsNullable());
+            listMap.put(SysVariableEnum.COLUMN_COLUMNSHOW.getName(), column.getColumnShow());
+            listMap.put(SysVariableEnum.COLUMN_PKCOLCAMELCASENAME.getName(), camelCaseColumnName);
+            variableMaps.put(SysVariableEnum.COLUMN_PKCAPITALCOLNAME.getName(), capitalColumnName);
+            listMap.put(SysVariableEnum.COLUMN_UNDERSCORECASECOLUMNNAME.getName(), underScoreCaseColumnName);
 
             if (!StringUtils.isBlank(column.getColumnQuery())) {
-                listMap.put("columnQuery", column.getColumnQuery());
-                map.put("hasQuery", true);
+                listMap.put(SysVariableEnum.COLUMN_COLUMNQUERY.getName(), column.getColumnQuery());
+                variableMaps.put(SysVariableEnum.HAS_QUERY.getName(), true);
                 queryColumns.add(listMap);
             }
             columns.add(listMap);
         }
-        map.put("columns", columns);
-        map.put("queryColumns", queryColumns);
+        variableMaps.put(SysVariableEnum.COLUMNS.getName(), columns);
+        variableMaps.put(SysVariableEnum.COLUMN_QUERYCOLUMNS.getName(), queryColumns);
 
-        //config
-        map.putAll(JSONUtil.toBean(JSONUtil.toJsonStr(genConfig), Map.class));
+        //动态组件变量
+        List<DynamicFormConfigVO> dynamicConfigs = JSONUtil.toList(
+                JSONUtil.parseArray(genConfig.get(Contants.FIELD_NAME_DYNAMICFORM)), DynamicFormConfigVO.class);
+        putDynamicConfigs(variableMaps, dynamicConfigs);
 
-        String serverPath = genConfig.getServerPath().replace("\\", "\\\\");
-        String frontPath = genConfig.getFrontPath().replace("\\", "\\\\");
-        map.put("javaPath", serverPath + Contants.PREFIX_SRC_MAIN_JAVA);
-        map.put("resourcesPath", serverPath + Contants.PREFIX_SRC_MAIN_RESOURCES);
-        map.put("frontPath", frontPath);
-        map.put("serverPath", serverPath);
 
+        //        // 判断是否去除表前缀
+//        if (StringUtils.isNotEmpty(genConfig.getPrefix())) {
+//            className = StringUtils.toCapitalizeCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
+//            changeClassName = StringUtils.toCamelCase(StrUtil.removePrefix(tableName, genConfig.getPrefix()));
+//        }//todo
 
         //设置自定变量
-        putSettings(map);
-        return map;
+        putCustomConfigs(variableMaps);
+        return variableMaps;
+    }
+
+    /**
+     * 设置动态组件变量
+     *
+     * @param variableMaps
+     * @param dynamicConfigs
+     */
+    private void putDynamicConfigs(Map<String, Object> variableMaps, List<DynamicFormConfigVO> dynamicConfigs) {
+        if (Objects.isNull(dynamicConfigs) || dynamicConfigs.size() == 0) {
+            return;
+        }
+        for (DynamicFormConfigVO dynamicConfig : dynamicConfigs) {
+            Object value = paraseValue(variableMaps, dynamicConfig.getComponentValue());
+            variableMaps.put(dynamicConfig.getComponentName(), value);
+        }
     }
 
     /**
      * 自定义变量，可在模板直接用
      *
-     * @param map
+     * @param variableMaps
      */
-    private void putSettings(Map<String, Object> map) {
-        if (Objects.nonNull(settingsMapsCfgs.getMaps())) {
-            map.putAll(settingsMapsCfgs.getMaps());
+    private void putCustomConfigs(Map<String, Object> variableMaps) {
+        if (Objects.isNull(customMapsCfgs.getMaps()) || customMapsCfgs.getMaps().size() == 0) {
+            return;
         }
+        Map<String, Object> customMaps = customMapsCfgs.getMaps();
+        for (String key : customMaps.keySet()) {
+            Object valueObj = customMaps.get(key);
+            Object value = "";
+            if (Objects.nonNull(valueObj)) {
+                value = paraseValue(variableMaps, valueObj.toString());
+            }
+            variableMaps.put(key, value);
+        }
+    }
 
+    /**
+     * 转换配置项的值
+     *
+     * @param variableMaps
+     * @param originValue
+     * @return
+     */
+    private Object paraseValue(Map<String, Object> variableMaps, String originValue) {
+        if (StrUtil.isBlank(originValue)) {
+            return originValue;
+        }
+        boolean shouldParase = StrUtil.containsAny(originValue, "${");
+        String value = null;
+        if (shouldParase) {
+            try {
+                value = freemarkerUtil.parse(originValue, variableMaps);
+            } catch (Exception e) {
+                log.error("转换异常");
+            }
+        }
+        boolean containedPath = StrUtil.contains(originValue, '\\');
+        if (containedPath) {
+            value = originValue.replace("\\", "\\\\");
+        }
+        return value;
     }
 }

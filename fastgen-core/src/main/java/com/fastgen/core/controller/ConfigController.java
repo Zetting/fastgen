@@ -2,7 +2,6 @@ package com.fastgen.core.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Response;
-import com.fastgen.core.contract.vo.GenConfig;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.util.ConfigUtil;
 import com.fastgen.core.base.Contants;
@@ -11,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 配置管理
@@ -32,8 +32,8 @@ public class ConfigController {
      * @return
      */
     @GetMapping("/getConfig")
-    public Response<GenConfig> getConfig() {
-        GenConfig config = configUtil.getConfigBean(Contants.USER_CFG);
+    public Response<Map> getConfig() {
+        Map config = configUtil.getConfigBean(Contants.USER_CFG);
         return Response.success(config, "获取成功");
     }
 
@@ -51,12 +51,12 @@ public class ConfigController {
     /**
      * 更新配置
      *
-     * @param genConfig
+     * @param configs
      * @return
      */
     @PostMapping(value = "/updateConfig")
-    public Response genConfig(@Validated @RequestBody GenConfig genConfig) {
-        configUtil.insertConfig(Contants.USER_CFG, JSONUtil.toJsonStr(genConfig));
+    public Response updateConfig(@Validated @RequestBody Map<String,Object> configs) {
+        configUtil.insertConfig(Contants.USER_CFG, JSONUtil.toJsonStr(configs));
         return Response.success();
     }
 }

@@ -78,7 +78,7 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public List<TemplateFtlInfo> templateInfos(Map<String, Object> templateValue) {
+    public List<TemplateFtlInfo> templateInfos(Map<String, Object> variableMaps) {
         String templatePath = getTemplatePath();
         String[] templates = new File(templatePath).list();
         if (templates == null || templates.length == 0) {
@@ -87,22 +87,12 @@ public class ConfigServiceImpl implements ConfigService {
         List<TemplateFtlInfo> templateFtlInfos = new ArrayList<>();
         TemplateFtlInfo templateFtlInfo = null;
         for (String template : templates) {
-            templateFtlInfo = getTemplateInfo(templateValue, template);
+            templateFtlInfo = getTemplateInfo(variableMaps, template);
             if (Objects.nonNull(templateFtlInfo)) {
                 templateFtlInfos.add(templateFtlInfo);
             }
         }
         return templateFtlInfos;
-    }
-
-    @Override
-    public TemplateFtlInfo getTemplateFtlInfo(List<TemplateFtlInfo> templateFtlInfos, String ftlFileName) {
-        if (CollectionUtils.isEmpty(templateFtlInfos)) {
-            return null;
-        }
-        List<TemplateFtlInfo> filterList = templateFtlInfos.stream().filter(
-                templateFtlInfo -> templateFtlInfo.getTemplateName().equals(ftlFileName)).collect(Collectors.toList());
-        return CollectionUtils.isEmpty(filterList) ? null : filterList.get(0);
     }
 
     /**
@@ -111,8 +101,8 @@ public class ConfigServiceImpl implements ConfigService {
      * @param templateFtlName 模板名称
      * @return
      */
-    private TemplateFtlInfo getTemplateInfo(Map<String, Object> templateValue, String templateFtlName) {
-        TemplateConfig templateConfig = getFtlConfigInfo(templateFtlName, templateValue);
+    public TemplateFtlInfo getTemplateInfo(Map<String, Object> variableMaps, String templateFtlName) {
+        TemplateConfig templateConfig = getFtlConfigInfo(templateFtlName, variableMaps);
         Properties properties = PropertiesUtil.contentToProperties(templateConfig.getConfigStr());
         String enable = properties.getProperty(Contants.FTL_CONFIG_ENABLE);
         TemplateFtlInfo templateFtlInfo = null;
