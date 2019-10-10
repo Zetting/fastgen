@@ -83,7 +83,7 @@ export default {
       loading: false, dialog: false,
       form: { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] },
       componentFormVisible: false,
-      componentForm: { componentId: '', componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
+      componentForm: { componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
       edited: false,
       templates: [],
       defaultTemplates: [],

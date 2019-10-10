@@ -14,7 +14,7 @@ import java.util.Map;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "settings")
-public class SettingsMapsCfgs {
+@ConfigurationProperties(prefix = "custom")
+public class CustomMapsCfgs {
     Map<String, Object> maps;
 }

@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.cfgs.FieldMapsCfgs;
-import com.fastgen.core.contract.vo.GenConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

@@ -2,7 +2,6 @@ package com.fastgen.core.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Response;
-import com.fastgen.core.contract.vo.GenConfig;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.util.ConfigUtil;
 import com.fastgen.core.base.Contants;
