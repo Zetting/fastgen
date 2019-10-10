@@ -40,6 +40,12 @@ export default {
         _this.dynamicForm = data.dynamicForm
         _this.form.templates = data.templates == null || data.templates === '' ? [] : data.templates.split(',')
         _this.form.cover = _this.form.cover.toString()
+        _this.formRules = {}
+        _this.dynamicForm.forEach(item => {
+          this.$set(_this.formRules, item.componentName, [
+            { required: item.required === 'true', message: item.componentLabel + '不能为空', trigger: 'blur' }
+          ])
+        })
       })
       _this.dialog = true
     }

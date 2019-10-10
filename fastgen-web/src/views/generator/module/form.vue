@@ -64,7 +64,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="componentFormVisible = false">取 消</el-button>
+        <el-button v-if="edited" @click="removeComponent">删除</el-button>
+        <el-button v-if="!edited" @click="cancelComponent">取消</el-button>
         <el-button type="primary" @click="submitEditComponent">确 定</el-button>
       </div>
     </el-dialog>
@@ -82,21 +83,11 @@ export default {
       loading: false, dialog: false,
       form: { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] },
       componentFormVisible: false,
-      componentForm: { componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
+      componentForm: { componentId: '', componentLabel: '', componentName: '', placeholder: '', required: 'false', componentValue: '' },
       edited: false,
       templates: [],
       defaultTemplates: [],
-      formRules: {
-        author: [
-          { required: true, message: '作者不能为空', trigger: 'blur' }
-        ],
-        templates: [
-          { required: true, message: '模板不能为空', trigger: 'blur' }
-        ],
-        cover: [
-          { required: true, message: '是否覆盖不能为空', trigger: 'blur' }
-        ]
-      },
+      formRules: {},
       componentRules: {
         componentLabel: [
           { required: true, message: '控件名称不为空', trigger: 'blur' }
@@ -111,15 +102,26 @@ export default {
     this.initData()
   },
   methods: {
+    /**
+     * 初始化
+     */
     initData() {
       getFtlNames().then(result => {
         this.templates = result.data
         this.defaultTemplates = result.data
       })
+
+      this.formRules = this.getInitRules()
     },
+    /**
+     * 取消
+     */
     cancel() {
       this.resetForm()
     },
+    /**
+     * 提交
+     */
     doSubmit() {
       this.handleData()
       this.$refs['form'].validate((valid) => {
@@ -131,6 +133,9 @@ export default {
         }
       })
     },
+    /**
+     * 更新
+     */
     doUpdate() {
       var formdata = this.handleData()
       formdata.templates = formdata.templates.join(',')
@@ -147,6 +152,9 @@ export default {
         console.log(err.response.data.message)
       })
     },
+    /**
+     * 处理动态表单
+     */
     handleData() {
       var postdata = this.form
       this.$set(postdata, 'dynamicForm', this.dynamicForm)
@@ -155,11 +163,14 @@ export default {
       })
       return postdata
     },
+    /**
+     *重置表单
+     */
     resetForm() {
       this.dialog = false
       this.templates = this.defaultTemplates
       this.$refs['form'].resetFields()
-      this.form = { author: '', pack: '', frontPath: '', groupName: '', serverPath: '', cover: 'false', genMode: '', remark: '', prefix: '', templates: [] }
+      this.form = { author: '', cover: 'false', templates: [] }
     },
     /**
      * 弹出编辑控件
@@ -172,7 +183,6 @@ export default {
       }
       this.componentFormVisible = true
     },
-
     /**
      * 提交编辑控件
      */
@@ -186,24 +196,37 @@ export default {
     /**
      * 移除控件
      */
-    removeComponent(item) {
-      var index = this.dynamicForm.indexOf(item)
+    removeComponent() {
+      var index = this.dynamicForm.indexOf(this.componentForm)
       if (index !== -1) {
         this.dynamicForm.splice(index, 1)
       }
+      this.componentFormVisible = false
+    },
+    /**
+     * 取消
+     */
+    cancelComponent() {
+      this.componentFormVisible = false
     },
     /**
      * 更新组件
      */
     updateComponent() {
-      this.removeComponent(this.componentForm)
-      this.dynamicForm.push({
-        required: this.componentForm.required,
-        componentLabel: this.componentForm.componentLabel,
-        componentName: this.componentForm.componentName,
-        key: Date.now()
-      })
+      this.handleData()
+      var index = this.dynamicForm.indexOf(this.componentForm)
+      this.dynamicForm[index].required = this.componentForm.required
+      this.dynamicForm[index].componentLabel = this.componentForm.componentLabel
+      this.dynamicForm[index].componentName = this.componentForm.componentName
+      this.dynamicForm[index].key = this.dynamicForm[index].key
       this.componentFormVisible = false
+
+      this.formRules = this.getInitRules()
+      this.dynamicForm.forEach(item => {
+        this.$set(this.formRules, item.componentName, [
+          { required: item.required === 'true', message: item.componentLabel + '不能为空', trigger: 'blur' }
+        ])
+      })
     },
     /**
      * 确认新增组件
@@ -225,6 +248,23 @@ export default {
           return false
         }
       })
+    },
+    /**
+     * 获取初始校验数据
+     */
+    getInitRules() {
+      var rules = {
+        author: [
+          { required: true, message: '作者不能为空', trigger: 'blur' }
+        ],
+        templates: [
+          { required: true, message: '模板不能为空', trigger: 'blur' }
+        ],
+        cover: [
+          { required: true, message: '是否覆盖不能为空', trigger: 'blur' }
+        ]
+      }
+      return rules
     }
   }
 }
