@@ -11,7 +11,7 @@
         <module>fastgen-core</module>
     </modules>
     <packaging>pom</packaging>
-    <name>fastgen-root</name>
+    <name>fastgen</name>
     <description>project for fastgen</description>
 
 </project>
