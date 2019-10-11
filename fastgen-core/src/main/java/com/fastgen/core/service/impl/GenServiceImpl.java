@@ -227,7 +227,7 @@ public class GenServiceImpl implements GenService {
             listMap.put(SysVariableEnum.COL_ISNULLABLE.getName(), column.getIsNullable());
             listMap.put(SysVariableEnum.COL_ISSHOW.getName(), column.getColumnShow());
             listMap.put(SysVariableEnum.COL_CAMELCASENAME.getName(), camelCaseColumnName);
-            variableMaps.put(SysVariableEnum.COL_CAPITALCOLNAME.getName(), capitalColumnName);
+            listMap.put(SysVariableEnum.COL_CAPITALCOLNAME.getName(), capitalColumnName);
             listMap.put(SysVariableEnum.COL_UNDERSCORECASECOLUMNNAME.getName(), underScoreCaseColumnName);
 
             if (!StringUtils.isBlank(column.getColumnQuery())) {

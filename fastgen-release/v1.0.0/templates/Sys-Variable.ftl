@@ -9,17 +9,20 @@
 | camelCaseClassName        |   驼峰类名   |  ${camelCaseClassName}   |
 <#if columns??>
     <#list columns as column>
-| columnComment        |   字段备注   |  ${column.columnComment}   |
-| columnKey        |   列类型,PRI为主键   |  ${column.columnKey}   |
-        <#if column.columnKey != 'PRI'>
-| pkColumnType        |   主键字段类型   |  ${column.pkColumnType!}   |
-| capitalColName        |   主键驼峰名（首字符大写）   |  ${column.capitalColName!}   |
+| columnComment        |   列字段备注   |  ${column.colComment}   |
+| colKey        |   列类型,PRI为主键   |  ${column.colKey}   |
+        <#if column.colKey != 'PRI'>
+| pkColumnType        |   主键字段类型   |  ${column.colPkType}   |
         </#if>
-| columnName        |   列字段名   |  ${column.columnName}   |
-| isNullable        |   列是否非空   |  ${column.isNullable}   |
-| columnShow        |   列是否显示   |  ${column.columnShow}   |
-| columnQuery        |   列查询 1:模糊 2：精确"   |  ${column.columnQuery!}   |
-| underScoreCaseColumnName        |   toUnderScoreCase("helloWorld") = "hello_world\   |  ${column.underScoreCaseColumnName}   |
+| colCamelCaseName        |   列名驼峰名   |  ${column.colCamelCaseName}   |
+| colCapitalColName        |   列名驼峰名（首字符大写）   |  ${column.colCapitalColName}   |
+| colUnderScoreCaseColumnName        |   列名下划线格式   |  ${column.colUnderScoreCaseColumnName}   |
+| colType        |   列字段类型   |  ${column.colType}   |
+| colName        |   列字段名   |  ${column.colName}   |
+| colIsNullable        |   列是否非空   |  ${column.colIsNullable}   |
+| colIsShow        |   列是否显示   |  ${column.colIsShow}   |
+| colQueryType        |   列查询 1:模糊 2：精确"   |  ${column.colQueryType!}   |
+        <#break>
     </#list>
 </#if>
 
