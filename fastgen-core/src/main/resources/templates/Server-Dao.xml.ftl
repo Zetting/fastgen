@@ -6,12 +6,12 @@
         select * from ${tableName} where 1=1
 <#if queryColumns??>
    <#list queryColumns as column>
-     <#if column.columnQuery = '1'>
+     <#if column.colQueryType = '1'>
          <if test="query.${column.colCamelCaseName} != null">
          and ${column.colUnderScoreCaseColumnName} like concat("%",<#noparse>#{</#noparse>query.${column.colCamelCaseName}<#noparse>}</#noparse>,"%")
          </if>
     </#if>
-    <#if column.columnQuery = '2'>
+    <#if column.colQueryType = '2'>
         <if test="query.${column.colCamelCaseName} != null">
         and ${column.colUnderScoreCaseColumnName} = <#noparse>#{</#noparse>query.${column.colCamelCaseName}<#noparse>}</#noparse>
         </if>
