@@ -29,18 +29,18 @@ public enum SysVariableEnum {
     HAS_AUTO("hasAuto", "是否有自增类型"),
 
 
-    COLUMN_COLUMN_COMMENT("columnComment", "列字段备注"),
-    COLUMN_COLUMN_KEY("columnKey", " 列类型,PRI为主键"),
-    COLUMN_PKCOLUMNTYPE("pkColumnType", "主键字段类型"),
-    COLUMN_PKCOLCAMELCASENAME("pkColCamelCaseName", "主键驼峰名"),
-    COLUMN_PKCAPITALCOLNAME("pkCapitalColName", "主键驼峰名（首字符大写）"),
-    COLUMN_UNDERSCORECASECOLUMNNAME("underScoreCaseColumnName", "toUnderScoreCase(\"helloWorld\") = \"hello_world\""),
-    COLUMN_COLUMNTYPE("columnType", "列字段类型"),
-    COLUMN_COLUMNNAME("columnName", "列字段名"),
-    COLUMN_ISNULLABLE("isNullable", "列是否非空"),
-    COLUMN_COLUMNSHOW("columnShow", "列是否显示"),
-    COLUMN_COLUMNQUERY("columnQuery", "列查询 1:模糊 2：精确"),
-    COLUMN_QUERYCOLUMNS("queryColumns", "列搜索字段");
+    COL_COMMENT("colComment", "列字段备注"),
+    COL_KEY("colKey", " 列类型,PRI为主键"),
+    COL_PKTYPE("colPkType", "主键字段类型"),
+    COL_CAMELCASENAME("colCamelCaseName", "列名驼峰名"),
+    COL_CAPITALCOLNAME("colCapitalColName", "列名驼峰名（首字符大写）"),
+    COL_UNDERSCORECASECOLUMNNAME("colUnderScoreCaseColumnName", "toUnderScoreCase(\"helloWorld\") = \"hello_world\""),
+    COL_TYPE("colType", "列字段类型"),
+    COL_NAME("colName", "列字段名"),
+    COL_ISNULLABLE("colIsNullable", "列是否非空"),
+    COL_ISSHOW("colIsShow", "列是否显示"),
+    COL_QUERYTYPE("colQueryType", "列查询 1:模糊 2：精确"),
+    QUERYCOLUMNS("queryColumns", "列搜索字段");
 
 
     /**

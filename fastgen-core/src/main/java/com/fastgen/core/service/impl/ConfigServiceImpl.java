@@ -12,12 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 配置实现类
@@ -41,7 +39,7 @@ public class ConfigServiceImpl implements ConfigService {
      */
     public String getBasePath() {
         String path = null;
-        if (Objects.isNull(active) || Contants.ENV_PROD.equals(active)) {
+        if (StringUtils.isEmpty(active) || Contants.ENV_RELEASE.equals(active)) {
             path = FileUtil.getParent(this.getClass().getClassLoader().getResource("")
                     .getFile().replace("!/BOOT-INF/classes!", ""), 1);
         } else {

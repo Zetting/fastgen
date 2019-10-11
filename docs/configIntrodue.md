@@ -18,7 +18,7 @@ spring.datasource.druid.password|数据库连接密码
 field.maps.xx|数据库字段类型映射配置,xx为类型
 custom.maps.xx|自定义配置，xx为自定义的键值，例如：custom.maps.myTableName=测试表名，则模板引用为：${myTableName},则能拿到：测试表名
 server.port|应用端口号
-spring.profiles.active|启动的环境，开发环境用local，发布版环境必须用prod
+spring.profiles.active|启动的环境，开发环境用local，发布版环境必须用release
 
  
  > 注：

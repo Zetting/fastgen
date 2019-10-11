@@ -203,17 +203,15 @@ public class GenServiceImpl implements GenService {
         List<Map<String, Object>> queryColumns = new ArrayList<>();
         for (ColumnInfo column : columnInfos) {
             Map<String, Object> listMap = new HashMap();
-            listMap.put(SysVariableEnum.COLUMN_COLUMN_COMMENT.getName(), column.getColumnComment());
-            listMap.put(SysVariableEnum.COLUMN_COLUMN_KEY.getName(), column.getColumnKey());
+            listMap.put(SysVariableEnum.COL_COMMENT.getName(), column.getColumnComment());
+            listMap.put(SysVariableEnum.COL_KEY.getName(), column.getColumnKey());
 
             String colType = configUtil.cloToJava(column.getColumnType().toString());
             String camelCaseColumnName = StringUtils.toCamelCase(column.getColumnName().toString());
             String capitalColumnName = StringUtils.toCapitalizeCamelCase(column.getColumnName().toString());
             String underScoreCaseColumnName = StringUtils.toUnderScoreCase(column.getColumnName().toString());
             if (PK.equals(column.getColumnKey())) {
-                variableMaps.put(SysVariableEnum.COLUMN_PKCOLUMNTYPE.getName(), colType);
-                variableMaps.put(SysVariableEnum.COLUMN_PKCOLCAMELCASENAME.getName(), camelCaseColumnName);
-                variableMaps.put(SysVariableEnum.COLUMN_PKCAPITALCOLNAME.getName(), capitalColumnName);
+                variableMaps.put(SysVariableEnum.COL_PKTYPE.getName(), colType);
             }
             if (TIMESTAMP.equals(colType)) {
                 variableMaps.put(SysVariableEnum.HAS_TIMESTAMP.getName(), true);
@@ -224,23 +222,23 @@ public class GenServiceImpl implements GenService {
             if (EXTRA.equals(column.getExtra())) {
                 variableMaps.put(SysVariableEnum.HAS_AUTO.getName(), true);
             }
-            listMap.put(SysVariableEnum.COLUMN_COLUMNTYPE.getName(), colType);
-            listMap.put(SysVariableEnum.COLUMN_COLUMNNAME.getName(), column.getColumnName());
-            listMap.put(SysVariableEnum.COLUMN_ISNULLABLE.getName(), column.getIsNullable());
-            listMap.put(SysVariableEnum.COLUMN_COLUMNSHOW.getName(), column.getColumnShow());
-            listMap.put(SysVariableEnum.COLUMN_PKCOLCAMELCASENAME.getName(), camelCaseColumnName);
-            variableMaps.put(SysVariableEnum.COLUMN_PKCAPITALCOLNAME.getName(), capitalColumnName);
-            listMap.put(SysVariableEnum.COLUMN_UNDERSCORECASECOLUMNNAME.getName(), underScoreCaseColumnName);
+            listMap.put(SysVariableEnum.COL_TYPE.getName(), colType);
+            listMap.put(SysVariableEnum.COL_NAME.getName(), column.getColumnName());
+            listMap.put(SysVariableEnum.COL_ISNULLABLE.getName(), column.getIsNullable());
+            listMap.put(SysVariableEnum.COL_ISSHOW.getName(), column.getColumnShow());
+            listMap.put(SysVariableEnum.COL_CAMELCASENAME.getName(), camelCaseColumnName);
+            variableMaps.put(SysVariableEnum.COL_CAPITALCOLNAME.getName(), capitalColumnName);
+            listMap.put(SysVariableEnum.COL_UNDERSCORECASECOLUMNNAME.getName(), underScoreCaseColumnName);
 
             if (!StringUtils.isBlank(column.getColumnQuery())) {
-                listMap.put(SysVariableEnum.COLUMN_COLUMNQUERY.getName(), column.getColumnQuery());
+                listMap.put(SysVariableEnum.COL_QUERYTYPE.getName(), column.getColumnQuery());
                 variableMaps.put(SysVariableEnum.HAS_QUERY.getName(), true);
                 queryColumns.add(listMap);
             }
             columns.add(listMap);
         }
         variableMaps.put(SysVariableEnum.COLUMNS.getName(), columns);
-        variableMaps.put(SysVariableEnum.COLUMN_QUERYCOLUMNS.getName(), queryColumns);
+        variableMaps.put(SysVariableEnum.QUERYCOLUMNS.getName(), queryColumns);
 
         //动态组件变量
         List<DynamicFormConfigVO> dynamicConfigs = JSONUtil.toList(
@@ -307,7 +305,7 @@ public class GenServiceImpl implements GenService {
             return originValue;
         }
         boolean shouldParase = StrUtil.containsAny(originValue, "${");
-        String value = null;
+        String value = originValue;
         if (shouldParase) {
             try {
                 value = freemarkerUtil.parse(originValue, variableMaps);

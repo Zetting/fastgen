@@ -13,7 +13,7 @@
 | columnKey        |   列类型,PRI为主键   |  ${column.columnKey}   |
         <#if column.columnKey != 'PRI'>
 | pkColumnType        |   主键字段类型   |  ${column.pkColumnType!}   |
-| pkCapitalColName        |   主键驼峰名（首字符大写）   |  ${column.pkCapitalColName!}   |
+| capitalColName        |   主键驼峰名（首字符大写）   |  ${column.capitalColName!}   |
         </#if>
 | columnName        |   列字段名   |  ${column.columnName}   |
 | isNullable        |   列是否非空   |  ${column.isNullable}   |

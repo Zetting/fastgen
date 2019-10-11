@@ -9,6 +9,7 @@
 
     <modules>
         <module>fastgen-core</module>
+        <module>fastgen-sample</module>
     </modules>
     <packaging>pom</packaging>
     <name>fastgen</name>
