@@ -1,6 +1,7 @@
 package com.fastgen.sample.action.base;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * 基础分页请求基类
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author: zet
  * @date: 2018/8/22 7:15
  */
+@Data
 public class PageBaseRequest {
 
     @ApiModelProperty(value = "第几页")

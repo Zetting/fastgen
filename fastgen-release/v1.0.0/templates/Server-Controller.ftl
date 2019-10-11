@@ -8,7 +8,7 @@ import ${package}.${groupName}.contract.req.${className}PageReq;
 import ${package}.${groupName}.contract.req.${className}CreateReq;
 import ${package}.${groupName}.contract.req.${className}UpdateReq;
 import ${package}.${groupName}.contract.vo.${className}PageVO;
-import org.springframework.security.access.prepost.PreAuthorize;;
+//import org.springframework.security.access.prepost.PreAuthorize;;
 import ${package}.${groupName}.service.${className}Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,21 +29,21 @@ public class ${className}Controller {
     private ${className}Service ${camelCaseClassName}Service;
 
     @GetMapping(value = "/listPages")
-    @PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_SELECT')")
+    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_SELECT')")
     public Response listPages(${className}PageReq request){
         PageData<${className}PageVO> pages = ${camelCaseClassName}Service.listPages(request);
         return Response.success(pages);
     }
 
     @PostMapping(value = "/create")
-    @PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_CREATE')")
+    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_CREATE')")
     public Response create(@RequestBody ${className}CreateReq request){
         ${camelCaseClassName}Service.create(request);
         return Response.success();
     }
 
     @PostMapping(value = "/update")
-    @PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_EDIT')")
+    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_EDIT')")
     public Response update(@RequestBody ${className}UpdateReq request){
         ${camelCaseClassName}Service.update(request);
         return Response.success();
@@ -51,7 +51,7 @@ public class ${className}Controller {
 
 
     @GetMapping(value = "/delete/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_DELETE')")
+    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_DELETE')")
     public Response delete(@PathVariable ${colPkType} id){
         ${camelCaseClassName}Service.delete(id);
         return Response.success();

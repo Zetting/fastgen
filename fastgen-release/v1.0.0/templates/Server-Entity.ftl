@@ -1,9 +1,9 @@
 package ${package}.${groupName}.entity;
 
+import lombok.Builder;
 import lombok.Data;
 import javax.persistence.*;
 import io.swagger.annotations.ApiModelProperty;
-import cn.lansion.base.BaseRequest;
 import java.util.Date;
 <#if hasBigDecimal>
 import java.math.BigDecimal;
@@ -15,13 +15,14 @@ import java.io.Serializable;
 * @author ${author}
 * @date ${date}
 */
+@Builder
 @Data
 public class ${className} implements Serializable{
 <#if columns??>
     <#list columns as column>
 
-    @ApiModelProperty("${column.columnComment}")
-    private ${column.columnType} ${column.colCamelCaseName};
+    @ApiModelProperty("${column.colComment}")
+    private ${column.colType} ${column.colCamelCaseName};
     </#list>
 </#if>
 }
