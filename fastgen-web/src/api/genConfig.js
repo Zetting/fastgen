@@ -14,6 +14,13 @@ export function getFtlNames() {
   })
 }
 
+export function getSettings() {
+  return request({
+    url: 'config/getSettings',
+    method: 'get'
+  })
+}
+
 export function update(data) {
   return request({
     url: 'config/updateConfig',

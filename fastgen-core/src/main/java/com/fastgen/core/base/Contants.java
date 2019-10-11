@@ -18,7 +18,7 @@ public class Contants {
     public static final String TRUE = "true";//true
     public static final String FALSE = "false";//false
 
-    public static final String ENV_PROD = "prod";//生成环境
+    public static final String ENV_RELEASE = "release";//发布环境
     public static final String CHARSET_CODE = "utf-8";//默认编码
     public static final String JAVA_IO_TMPDIR = "java.io.tmpdir";//临时目录
     public static final String PREFIX_SRC_MAIN_JAVA = "\\\\src\\\\main\\\\java";//java所在目录

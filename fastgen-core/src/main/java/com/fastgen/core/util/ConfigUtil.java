@@ -3,6 +3,7 @@ package com.fastgen.core.util;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.json.JSONUtil;
+import com.fastgen.core.base.Contants;
 import com.fastgen.core.base.cfgs.FieldMapsCfgs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,6 @@ public class ConfigUtil {
     @Autowired
     private FieldMapsCfgs fieldMapsCfgs;
 
-    public static final String PROD = "prod";
     public static final String JAR_HOME = System.getProperty("user.dir");
 
     /**
@@ -74,7 +74,7 @@ public class ConfigUtil {
      */
     private File getFile(String configName) throws FileNotFoundException {
         File file = null;
-        if (PROD.equals(active)) {
+        if (Contants.ENV_RELEASE.equals(active)) {
             file = ResourceUtils.getFile(JAR_HOME + File.separator + configName);
         } else {
             file = ResourceUtils.getFile("classpath:" + configName);

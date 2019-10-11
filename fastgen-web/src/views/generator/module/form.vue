@@ -11,7 +11,6 @@
             <el-radio v-model="form.cover" label="false">否</el-radio>
         </el-form-item>
         <el-form-item label="模板" prop="templates">
-          <el-tooltip class="item" effect="light" content="该选项选择的模板才会生成代码，否则不生成" placement="right-start">
             <el-select v-model="form.templates" multiple filterable placeholder="请选择模板">
               <el-option
                 v-for="item in templates"
@@ -19,7 +18,6 @@
                 :label="item"
                 :value="item"/>
             </el-select>
-          </el-tooltip>
         </el-form-item>
         <!--动态控件-->
         <el-form-item
@@ -32,16 +30,12 @@
               <el-input v-model="domain.componentValue"/>
             </el-col>
             <el-col :span="2">
-              <el-tooltip class="item" effect="light" content="修改/删除配置项" placement="right-start">
                 <el-button size="mini" icon="el-icon-edit" @click.prevent="editComponent(true,domain)"/>
-              </el-tooltip>
             </el-col>
           </el-row>
         </el-form-item>
         <el-form-item prop="add">
-          <el-tooltip class="item" effect="light" content="新增配置项" placement="right-start">
             <el-button size="mini" icon="el-icon-plus" @click="editComponent(false,{})"/>
-          </el-tooltip>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
