@@ -1,7 +1,6 @@
 package ${package}.${groupName}.contract.vo;
 
 import lombok.Data;
-import javax.persistence.*;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
 <#if hasBigDecimal>

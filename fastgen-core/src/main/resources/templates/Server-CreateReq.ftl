@@ -1,13 +1,11 @@
 package ${package}.${groupName}.contract.req;
 
 import lombok.Data;
-import javax.persistence.*;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
 <#if hasBigDecimal>
 import java.math.BigDecimal;
 </#if>
-import java.io.Serializable;
 
 /**
 * ${tableComment}-创建请求

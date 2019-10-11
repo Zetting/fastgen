@@ -28,7 +28,7 @@ import java.util.List;
 public class Swagger2Config {
     @Value("${swagger.enable:true}")
     private Boolean enable;
-    @Value("${jwt.header}")
+    @Value("${jwt.header:Authorization}")
     private String header;
     @Value("${swagger.host:}")
     private String swaggerHost;
