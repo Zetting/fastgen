@@ -29,21 +29,21 @@ public class ${className}Controller {
     private ${className}Service ${camelCaseClassName}Service;
 
     @GetMapping(value = "/listPages")
-    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_SELECT')")
+    @ApiOperation("${tableComment}-分页")
     public Response listPages(${className}PageReq request){
         PageData<${className}PageVO> pages = ${camelCaseClassName}Service.listPages(request);
         return Response.success(pages);
     }
 
     @PostMapping(value = "/create")
-    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_CREATE')")
+    @ApiOperation("${tableComment}-新增")
     public Response create(@RequestBody ${className}CreateReq request){
         ${camelCaseClassName}Service.create(request);
         return Response.success();
     }
 
     @PostMapping(value = "/update")
-    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_EDIT')")
+    @ApiOperation("${tableComment}-更新")
     public Response update(@RequestBody ${className}UpdateReq request){
         ${camelCaseClassName}Service.update(request);
         return Response.success();
@@ -51,7 +51,7 @@ public class ${className}Controller {
 
 
     @GetMapping(value = "/delete/{id}")
-    //@PreAuthorize("hasAnyRole('ADMIN','${upperCaseClassName}_ALL','${upperCaseClassName}_DELETE')")
+    @ApiOperation("${tableComment}-删除")
     public Response delete(@PathVariable ${colPkType} id){
         ${camelCaseClassName}Service.delete(id);
         return Response.success();
