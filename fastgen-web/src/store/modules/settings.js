@@ -9,7 +9,8 @@ const settings = {
     sidebarLogo: Config.sidebarLogo,
     theme: variables.theme,
     settingBtn: Config.settingBtn,
-    uniqueOpened: Config.uniqueOpened
+    uniqueOpened: Config.uniqueOpened,
+    currentProjectId: ''
   },
   mutations: {
     CHANGE_SETTING: (state, { key, value }) => {

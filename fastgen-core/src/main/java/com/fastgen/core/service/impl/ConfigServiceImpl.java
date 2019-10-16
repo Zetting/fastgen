@@ -1,10 +1,15 @@
 package com.fastgen.core.service.impl;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.json.JSONUtil;
+import com.fastgen.core.base.Contants;
+import com.fastgen.core.base.Response;
 import com.fastgen.core.base.ServerException;
+import com.fastgen.core.model.BaseConfigItem;
+import com.fastgen.core.model.BaseConfigInfo;
 import com.fastgen.core.model.TemplateFtlInfo;
 import com.fastgen.core.service.ConfigService;
-import com.fastgen.core.base.Contants;
+import com.fastgen.core.util.ConfigUtil;
 import com.fastgen.core.util.FreemarkerUtil;
 import com.fastgen.core.util.PropertiesUtil;
 import lombok.Data;
@@ -12,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -30,31 +36,34 @@ public class ConfigServiceImpl implements ConfigService {
     private String active;
     @Autowired
     private FreemarkerUtil freemarkerUtil;
+    private ConfigUtil configUtil = new ConfigUtil(active);
 
-
-    /**
-     * 获取基本路径
-     *
-     * @return
-     */
-    public String getBasePath() {
-        String path = null;
-        if (StringUtils.isEmpty(active) || Contants.ENV_RELEASE.equals(active)) {
-            path = FileUtil.getParent(this.getClass().getClassLoader().getResource("")
-                    .getFile().replace("!/BOOT-INF/classes!", ""), 1);
-        } else {
-            path = this.getClass().getResource("/").getPath();
-        }
-        return path;
+    @Override
+    public BaseConfigInfo getBaseConfig() {
+        return configUtil.getBaseConfig();
     }
 
-    /**
-     * 获取模板路径
-     *
-     * @return
-     */
-    public String getTemplatePath() {
-        return getBasePath() + File.separator + Contants.TEMPLATES_PATH_NAME;
+    @Override
+    public Map<String, Object> getCustomConfig() {
+        BaseConfigItem projectCfg = getCurrentBaseConfig();
+        String path = projectCfg.getPath() + File.separator + Contants.FILE_NAME_FGCUSTOM;
+        Map<String, Object> config = configUtil.getMapFormJson(path);
+        return config;
+    }
+
+    @Override
+    public Response updateCustomConfig(Map<String, Object> configs) {
+        BaseConfigItem projectCfg = getCurrentBaseConfig();
+        String path = projectCfg.getPath() + File.separator + Contants.FILE_NAME_FGCUSTOM;
+        configUtil.write(path, JSONUtil.toJsonStr(configs));
+        return Response.success();
+    }
+
+
+    @Override
+    public Response updateBaseConfig(BaseConfigInfo config) {
+        configUtil.write(Contants.TAG_CURRENT_PATH + Contants.FILE_NAME_FGBASE, JSONUtil.toJsonStr(config));
+        return Response.success();
     }
 
     @Override
@@ -102,13 +111,13 @@ public class ConfigServiceImpl implements ConfigService {
     public TemplateFtlInfo getTemplateInfo(Map<String, Object> variableMaps, String templateFtlName) {
         TemplateConfig templateConfig = getFtlConfigInfo(templateFtlName, variableMaps);
         Properties properties = PropertiesUtil.contentToProperties(templateConfig.getConfigStr());
-        String enable = properties.getProperty(Contants.FTL_CONFIG_ENABLE);
+        String enable = properties.getProperty(Contants.FIELD_FTL_CONFIG_ENABLE);
         TemplateFtlInfo templateFtlInfo = null;
         if (StringUtils.isEmpty(enable) || Contants.TRUE.equals(enable)) {
             templateFtlInfo = new TemplateFtlInfo();
             templateFtlInfo.setProperties(properties);
             templateFtlInfo.setTemplateName(templateFtlName);
-            templateFtlInfo.setFilePath(properties.getProperty(Contants.FTL_CONFIG_FILE_PATH, ""));
+            templateFtlInfo.setFilePath(properties.getProperty(Contants.FIELD_FTL_CONFIG_FILE_PATH, ""));
             templateFtlInfo.setTemplateContent(templateConfig.getTemplateContent());
             return templateFtlInfo;
         }
@@ -156,6 +165,58 @@ public class ConfigServiceImpl implements ConfigService {
         return templateConfig;
     }
 
+    /**
+     * 获取指定项目基础配置
+     *
+     * @return
+     */
+    @Override
+    public BaseConfigItem getCurrentBaseConfig() {
+        BaseConfigInfo projectsConfig = configUtil.getBaseConfig();
+        if (Objects.isNull(projectsConfig) || CollectionUtils.isEmpty(projectsConfig.getProjects())) {
+            log.error("项目基础配置为空，请新增相应项目");
+            throw new ServerException("项目基础配置为空，请新增相应项目");
+        }
+        for (BaseConfigItem projectCfg : projectsConfig.getProjects()) {
+            if (projectsConfig.getCurrentProjectId().equals(projectCfg.getProjectId())) {
+                return projectCfg;
+            }
+        }
+        log.error("找不到该项目配置,projectId=[{}]", projectsConfig.getCurrentProjectId());
+        throw new ServerException("找不到该项目配置");
+    }
+
+    /**
+     * 获取基本路径
+     *
+     * @return
+     */
+    public String getBasePath() {
+        String path = null;
+        if (StringUtils.isEmpty(active) || Contants.ENV_RELEASE.equals(active)) {
+            path = FileUtil.getParent(this.getClass().getClassLoader().getResource("")
+                    .getFile().replace("!/BOOT-INF/classes!", ""), 1);
+        } else {
+            path = this.getClass().getResource("/").getPath();
+        }
+        return path;
+    }
+
+    /**
+     * 获取模板路径
+     *
+     * @return
+     */
+    public String getTemplatePath() {
+        BaseConfigItem projectCfg = getCurrentBaseConfig();
+        String path = projectCfg.getPath() + File.separator + Contants.DIR_NAME_TEMPLATES;
+        if (path.startsWith(Contants.TAG_CURRENT_PATH)) {
+            path = path.replaceFirst(Contants.TAG_CURRENT_PATH, "");
+            return getBasePath() + File.separator + path;
+        } else {
+            return path;
+        }
+    }
 
     /**
      * 模板配置信息

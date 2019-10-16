@@ -74,7 +74,7 @@
 </template>
 
 <script>
-  import {getFtlNames, update} from '@/api/genConfig'
+  import {getFtlNames, updateCustomConfig} from '@/api/genConfig'
 
   export default {
     data() {
@@ -106,10 +106,10 @@
        * 初始化
        */
       initData() {
-        getFtlNames().then(result => {
-          this.templates = result.data
-          this.defaultTemplates = result.data
-        })
+        // getFtlNames().then(result => {
+        //   this.templates = result.data
+        //   this.defaultTemplates = result.data
+        // })
       },
 
       /**
@@ -140,7 +140,7 @@
       doUpdate() {
         var formdata = this.handleData()
         formdata.templates = formdata.templates.join(',')
-        update(formdata).then(res => {
+        updateCustomConfig(formdata).then(res => {
           this.resetForm()
           this.$notify({
             title: '更新成功',

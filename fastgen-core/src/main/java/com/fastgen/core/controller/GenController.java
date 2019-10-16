@@ -56,7 +56,7 @@ public class GenController {
      */
     @PostMapping(value = "/gen")
     public Response gen(@RequestBody List<ColumnInfo> columnInfos,
-                              @RequestParam String tableName) {
+                        @RequestParam String tableName) {
         TableInfo tableInfo = genService.getTableInfo(tableName);
         genService.gen(columnInfos, tableInfo);
         return Response.success();

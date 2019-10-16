@@ -6,14 +6,13 @@ import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Contants;
 import com.fastgen.core.base.ServerException;
 import com.fastgen.core.base.SysVariableEnum;
-import com.fastgen.core.base.cfgs.CustomMapsCfgs;
-import com.fastgen.core.contract.DynamicFormConfigVO;
-import com.fastgen.core.model.ColumnInfo;
-import com.fastgen.core.model.TableInfo;
-import com.fastgen.core.model.TemplateFtlInfo;
+import com.fastgen.core.model.*;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.service.GenService;
-import com.fastgen.core.util.*;
+import com.fastgen.core.util.Chars;
+import com.fastgen.core.util.ConfigUtil;
+import com.fastgen.core.util.FreemarkerUtil;
+import com.fastgen.core.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,14 +45,11 @@ public class GenServiceImpl implements GenService {
     private EntityManager em;
     @Value("${spring.profiles.active}")
     private String active;
-    @Autowired
-    private ConfigUtil configUtil;
+    private ConfigUtil configUtil = new ConfigUtil(active);
     @Autowired
     private ConfigService configService;
     @Autowired
     private FreemarkerUtil freemarkerUtil;
-    @Autowired
-    private CustomMapsCfgs customMapsCfgs;
 
     @Override
     public TableInfo getTableInfo(String tableName) {
@@ -111,9 +107,10 @@ public class GenServiceImpl implements GenService {
 
     @Override
     public void gen(List<ColumnInfo> columnInfos, TableInfo tableInfo) {
-        Map<String, Object> genConfig = configUtil.getConfigBean(Contants.USER_CFG);
+        BaseConfigItem configItem = configService.getCurrentBaseConfig();
+        Map<String, Object> genConfig = configUtil.getMapFormJson(configItem.getPath() + File.separator + Contants.FILE_NAME_FGCUSTOM);
 
-        String templates = genConfig.get(Contants.FIELD_NAME_TEMPLATES) + "";
+        String templates = genConfig.get(Contants.FIELD_TEMPLATES) + "";
         if (templates == null || "".equals(templates)) {
             throw new ServerException("模板未选择");
         }
@@ -127,7 +124,7 @@ public class GenServiceImpl implements GenService {
 
             File file = new File(templateFtlInfo.getFilePath());
             // 如果非覆盖生成
-            String conver = (String) genConfig.get(Contants.FIELD_NAME_COVER);
+            String conver = (String) genConfig.get(Contants.FIELD_COVER);
             if (!conver.equals("true")) {
                 if (FileUtil.exist(file)) {
                     log.info("[file is exist] path = {}", templateFtlInfo.getFilePath());
@@ -183,7 +180,7 @@ public class GenServiceImpl implements GenService {
         //常规变量
         Map<String, Object> variableMaps = new HashMap();
         variableMaps.put(SysVariableEnum.GROUP_NAME.getName(), groupName);
-        variableMaps.put(SysVariableEnum.AUTHOR.getName(), genConfig.get(Contants.FIELD_NAME_AUTHOR));
+        variableMaps.put(SysVariableEnum.AUTHOR.getName(), genConfig.get(Contants.FIELD_AUTHOR));
         variableMaps.put(SysVariableEnum.DATE.getName(), LocalDate.now().toString());
         variableMaps.put(SysVariableEnum.TABLE_NAME.getName(), tableName);
         variableMaps.put(SysVariableEnum.TABLE_COMMENT.getName(), StringUtils.removeEnd(tableComment, "表"));
@@ -206,7 +203,8 @@ public class GenServiceImpl implements GenService {
             listMap.put(SysVariableEnum.COL_COMMENT.getName(), column.getColumnComment());
             listMap.put(SysVariableEnum.COL_KEY.getName(), column.getColumnKey());
 
-            String colType = configUtil.cloToJava(column.getColumnType().toString());
+            String colType = "";//todo
+//            String colType = configUtil.cloToJava(column.getColumnType().toString());
             String camelCaseColumnName = StringUtils.toCamelCase(column.getColumnName().toString());
             String capitalColumnName = StringUtils.toCapitalizeCamelCase(column.getColumnName().toString());
             String underScoreCaseColumnName = StringUtils.toUnderScoreCase(column.getColumnName().toString());
@@ -241,8 +239,8 @@ public class GenServiceImpl implements GenService {
         variableMaps.put(SysVariableEnum.QUERYCOLUMNS.getName(), queryColumns);
 
         //动态组件变量
-        List<DynamicFormConfigVO> dynamicConfigs = JSONUtil.toList(
-                JSONUtil.parseArray(genConfig.get(Contants.FIELD_NAME_DYNAMICFORM)), DynamicFormConfigVO.class);
+        List<DynamicFormCfgVO> dynamicConfigs = JSONUtil.toList(
+                JSONUtil.parseArray(genConfig.get(Contants.FIELD_DYNAMICFORM)), DynamicFormCfgVO.class);
         putDynamicConfigs(variableMaps, dynamicConfigs);
 
 
@@ -263,11 +261,11 @@ public class GenServiceImpl implements GenService {
      * @param variableMaps
      * @param dynamicConfigs
      */
-    private void putDynamicConfigs(Map<String, Object> variableMaps, List<DynamicFormConfigVO> dynamicConfigs) {
+    private void putDynamicConfigs(Map<String, Object> variableMaps, List<DynamicFormCfgVO> dynamicConfigs) {
         if (Objects.isNull(dynamicConfigs) || dynamicConfigs.size() == 0) {
             return;
         }
-        for (DynamicFormConfigVO dynamicConfig : dynamicConfigs) {
+        for (DynamicFormCfgVO dynamicConfig : dynamicConfigs) {
             Object value = paraseValue(variableMaps, dynamicConfig.getComponentValue());
             variableMaps.put(dynamicConfig.getComponentName(), value);
         }
@@ -279,10 +277,7 @@ public class GenServiceImpl implements GenService {
      * @param variableMaps
      */
     private void putCustomConfigs(Map<String, Object> variableMaps) {
-        if (Objects.isNull(customMapsCfgs.getMaps()) || customMapsCfgs.getMaps().size() == 0) {
-            return;
-        }
-        Map<String, Object> customMaps = customMapsCfgs.getMaps();
+        Map<String, Object> customMaps = configService.getCustomConfig();
         for (String key : customMaps.keySet()) {
             Object valueObj = customMaps.get(key);
             Object value = "";

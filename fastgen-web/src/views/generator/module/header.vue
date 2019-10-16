@@ -13,7 +13,7 @@
       <eForm ref="form"/>
     </div>
     <div class="right-item" >
-      <el-select v-model="currencyProjectId" @change="switchProject" style="width: 110px; margin-right:3px;" filterable clearable  placeholder="请选择">
+      <el-select v-model="currentProjectId" @change="switchProject" style="width: 110px; margin-right:3px;" filterable  placeholder="请选择">
         <el-option
           v-for="item in projects"
           :key="item.path"
@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { get ,update } from '@/api/genConfig'
+import { getBaseConfig ,updateBaseConfig ,getFtlNames ,getCustomConfig } from '@/api/genConfig'
 import eForm from './form'
 // 查询条件
 export default {
@@ -62,7 +62,6 @@ export default {
     return {
       projects: [],
       configs: { projects: [] },
-      currencyProjectId: '',
       projectFormVisible : false,
       projectForm: { projectId: '', projectName: '', path: '' },
       projectRules: {
@@ -73,7 +72,7 @@ export default {
           {required: true, message: '项目路径不能为空', trigger: 'blur'}
         ]
       },
-      edited: false
+      edited: false,
     }
   },
   props: {
@@ -82,14 +81,27 @@ export default {
       required: true
     }
   },
+  computed: {
+    currentProjectId: {
+      get() {
+        return this.$store.state.settings.currentProjectId
+      },
+      set(val) {
+        this.$store.dispatch('changeSetting', {
+          key: 'currentProjectId',
+          value: val
+        })
+      }
+    }
+  },
   created() {
     this.initData()
   },
   methods: {
     initData() {
-      get().then(res => {
+      getBaseConfig().then(res => {
         var data = res.data
-        this.configs = data
+        this.currentProjectId = data.currentProjectId
         this.projects = data.projects == undefined ? [] : data.projects
       })
     },
@@ -99,12 +111,12 @@ export default {
     },
     to() {
       const _this = this.$refs.form
-      get().then(res => {
+      getCustomConfig().then(res => {
         var data = res.data
         _this.form = data
         _this.dynamicForm = data.dynamicForm
         _this.form.templates = data.templates == null || data.templates === '' ? [] : data.templates.split(',')
-        _this.form.cover = _this.form.cover.toString()
+        _this.form.cover = _this.form.cover
 
         _this.formRules = _this.getInitRules()
         _this.dynamicForm.forEach(item => {
@@ -113,15 +125,26 @@ export default {
           ])
         })
       })
+
+      //初始化模板选择下拉
+      getFtlNames().then(result => {
+        _this.templates = result.data
+        _this.defaultTemplates = result.data
+      })
       _this.dialog = true
     },
-
     /**
      * 切换项目
      */
     switchProject(item) {
-      debugger
-      this.currencyProjectId = item
+      var param = {
+        currentProjectId: this.$store.state.settings.currentProjectId,
+        projects: this.projects
+      }
+      updateBaseConfig(param).then(res => {
+        console.info("项目切换成功:projectId="+param.currentProjectId)
+      })
+      this.$emit('switchProject', item)
     },
     /**
      * 删除项目
@@ -132,9 +155,11 @@ export default {
         this.projects.splice(index, 1)
       }
       this.projectFormVisible = false
-      var newConfigs = this.configs
-      newConfigs.projects = this.projects
-      update(newConfigs).then(res => {
+      var param = {
+        currentProjectId: this.$store.state.settings.currentProjectId,
+        projects: this.projects
+      }
+      updateBaseConfig(param).then(res => {
         this.$notify({
           title: '删除成功',
           type: 'success',
@@ -173,9 +198,11 @@ export default {
               this.projects[index]=this.projectForm;
             }
           }
-          var newConfigs = this.configs
-          newConfigs.projects = this.projects
-          update(newConfigs).then(res => {
+          var param = {
+            currentProjectId: this.$store.state.settings.currentProjectId,
+            projects: this.projects
+          }
+          updateBaseConfig(param).then(res => {
             this.$notify({
               title: '操作成功',
               type: 'success',

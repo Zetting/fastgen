@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <eHeader :query="query"/>
+    <eHeader @switchProject="switchProject" :query="query"/>
     <!--表格渲染-->
     <el-table v-loading="loading" :data="data" size="small" style="width: 100%;">
       <el-table-column label="序号" width="80" align="center">
@@ -54,6 +54,9 @@ export default {
       this.params = { page: this.page, size: this.size }
       if (keywords) { this.params['keywords'] = keywords }
       return true
+    },
+    switchProject(item) {
+      this.init()
     }
   }
 }
