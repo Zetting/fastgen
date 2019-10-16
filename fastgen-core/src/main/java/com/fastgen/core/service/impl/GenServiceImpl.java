@@ -115,7 +115,7 @@ public class GenServiceImpl implements GenService {
             throw new ServerException("模板未选择");
         }
         List<String> templateList = Arrays.asList(templates.split(Chars.COMMA));
-        Map<String, Object> variableMaps = getSysVariableValue(columnInfos, genConfig, tableInfo);
+        Map<String, Object> variableMaps = getSysVariableValue(configItem, columnInfos, genConfig, tableInfo);
         for (String templateName : templateList) {
             TemplateFtlInfo templateFtlInfo = configService.getTemplateInfo(variableMaps, templateName);
             if (Objects.isNull(templateFtlInfo)) {
@@ -171,7 +171,7 @@ public class GenServiceImpl implements GenService {
      * @param tableInfo
      * @return
      */
-    private Map<String, Object> getSysVariableValue(List<ColumnInfo> columnInfos, Map<String, Object> genConfig, TableInfo tableInfo) {
+    private Map<String, Object> getSysVariableValue(BaseConfigItem configItem, List<ColumnInfo> columnInfos, Map<String, Object> genConfig, TableInfo tableInfo) {
         String tableName = tableInfo.getTableName();
         String tableComment = tableInfo.getTableComment();
 
@@ -195,6 +195,8 @@ public class GenServiceImpl implements GenService {
         variableMaps.put(SysVariableEnum.HAS_QUERY.getName(), false);
         variableMaps.put(SysVariableEnum.HAS_AUTO.getName(), false);
 
+        Map<String, Object> fieldConfigs = configUtil.getFieldConfigs(
+                configItem.getPath() + File.separator + Contants.FILE_NAME_PROJECT);
         //列变量
         List<Map<String, Object>> columns = new ArrayList<>();
         List<Map<String, Object>> queryColumns = new ArrayList<>();
@@ -203,8 +205,7 @@ public class GenServiceImpl implements GenService {
             listMap.put(SysVariableEnum.COL_COMMENT.getName(), column.getColumnComment());
             listMap.put(SysVariableEnum.COL_KEY.getName(), column.getColumnKey());
 
-            String colType = "";//todo
-//            String colType = configUtil.cloToJava(column.getColumnType().toString());
+            String colType = configUtil.cloToJava(fieldConfigs, column.getColumnType().toString());
             String camelCaseColumnName = StringUtils.toCamelCase(column.getColumnName().toString());
             String capitalColumnName = StringUtils.toCapitalizeCamelCase(column.getColumnName().toString());
             String underScoreCaseColumnName = StringUtils.toUnderScoreCase(column.getColumnName().toString());
@@ -251,7 +252,7 @@ public class GenServiceImpl implements GenService {
 //        }//todo
 
         //设置自定变量
-        putCustomConfigs(variableMaps);
+        putCustomConfigs(configItem, variableMaps);
         return variableMaps;
     }
 
@@ -276,8 +277,8 @@ public class GenServiceImpl implements GenService {
      *
      * @param variableMaps
      */
-    private void putCustomConfigs(Map<String, Object> variableMaps) {
-        Map<String, Object> customMaps = configService.getCustomConfig();
+    private void putCustomConfigs(BaseConfigItem configItem, Map<String, Object> variableMaps) {
+        Map<String, Object> customMaps = configUtil.getCustomConfigs(configItem.getPath() + File.separator + Contants.FILE_NAME_PROJECT);
         for (String key : customMaps.keySet()) {
             Object valueObj = customMaps.get(key);
             Object value = "";
