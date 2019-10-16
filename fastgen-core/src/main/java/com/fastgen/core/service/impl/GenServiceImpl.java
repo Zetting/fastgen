@@ -45,7 +45,7 @@ public class GenServiceImpl implements GenService {
     private EntityManager em;
     @Value("${spring.profiles.active}")
     private String active;
-    private ConfigUtil configUtil = new ConfigUtil(active);
+    private ConfigUtil configUtil = ConfigUtil.getInstance(active);
     @Autowired
     private ConfigService configService;
     @Autowired

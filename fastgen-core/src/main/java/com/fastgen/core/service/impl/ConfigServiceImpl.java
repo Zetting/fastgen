@@ -36,7 +36,7 @@ public class ConfigServiceImpl implements ConfigService {
     private String active;
     @Autowired
     private FreemarkerUtil freemarkerUtil;
-    private ConfigUtil configUtil = new ConfigUtil(active);
+    private ConfigUtil configUtil = ConfigUtil.getInstance(active);
 
     @Override
     public BaseConfigInfo getBaseConfig() {

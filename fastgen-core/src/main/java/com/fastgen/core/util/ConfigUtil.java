@@ -5,12 +5,10 @@ import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Contants;
 import com.fastgen.core.base.ServerException;
-import com.fastgen.core.model.BaseConfigItem;
 import com.fastgen.core.model.BaseConfigInfo;
-import com.fastgen.core.model.DbConfigInfo;
+import com.fastgen.core.model.BaseConfigItem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.Environment;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
 
@@ -25,13 +23,33 @@ import java.util.*;
  */
 @Slf4j
 public class ConfigUtil {
-    private static String active;
+    private String active;
+    private transient static ConfigUtil configUtil = null;
 
-    private ConfigUtil() {
+    private ConfigUtil(String active) {
+        this.active = active;
     }
 
-    public ConfigUtil(String active) {
-        this.active = active;
+    /**
+     * 单例
+     *
+     * @return
+     */
+    public static ConfigUtil getInstance(String active) {
+        try {
+            if (configUtil == null) {
+                synchronized (ConfigUtil.class) {
+                    if (configUtil == null) {
+                        configUtil = new ConfigUtil(active);
+                        return configUtil;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("{}", e);
+        }
+        return configUtil;
     }
 
     public final String JAR_HOME = System.getProperty("user.dir");
@@ -62,7 +80,7 @@ public class ConfigUtil {
     public String getContent(String suffixPath) {
         try {
             File file = getFile(suffixPath);
-            return FileUtil.readString(file, "UTF-8");
+            return FileUtil.readString(file,"utf-8");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IORuntimeException e) {

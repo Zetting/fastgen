@@ -180,7 +180,7 @@ public class DynamicDataSourceRegister implements ImportBeanDefinitionRegistrar,
     private ConfigUtil getConfigUtil() {
         String[] activeProfiles = this.evn.getActiveProfiles();
         String activeProfile = StringUtils.arrayToCommaDelimitedString(activeProfiles);
-        ConfigUtil configUtil = new ConfigUtil(activeProfile);
+        ConfigUtil configUtil = ConfigUtil.getInstance(activeProfile);
         return configUtil;
     }
 }
