@@ -1,9 +1,9 @@
 package com.fastgen.core.service;
 
 import com.fastgen.core.base.Response;
-import com.fastgen.core.model.BaseConfigItem;
-import com.fastgen.core.model.BaseConfigInfo;
-import com.fastgen.core.model.TemplateFtlInfo;
+import com.fastgen.core.contract.BaseConfigItem;
+import com.fastgen.core.contract.BaseConfigInfo;
+import com.fastgen.core.contract.TemplateFtlInfo;
 
 import java.util.List;
 import java.util.Map;

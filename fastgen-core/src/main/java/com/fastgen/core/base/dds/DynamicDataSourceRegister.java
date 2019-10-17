@@ -1,8 +1,6 @@
 package com.fastgen.core.base.dds;
 
 import com.fastgen.core.base.Contants;
-import com.fastgen.core.base.ServerException;
-import com.fastgen.core.model.DbConfigInfo;
 import com.fastgen.core.util.ConfigUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;

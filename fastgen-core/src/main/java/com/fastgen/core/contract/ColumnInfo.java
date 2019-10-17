@@ -1,4 +1,4 @@
-package com.fastgen.core.model;
+package com.fastgen.core.contract;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

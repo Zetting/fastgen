@@ -6,7 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.fastgen.core.base.Contants;
 import com.fastgen.core.base.ServerException;
 import com.fastgen.core.base.SysVariableEnum;
-import com.fastgen.core.model.*;
+import com.fastgen.core.contract.*;
 import com.fastgen.core.service.ConfigService;
 import com.fastgen.core.service.GenService;
 import com.fastgen.core.util.Chars;
@@ -240,8 +240,8 @@ public class GenServiceImpl implements GenService {
         variableMaps.put(SysVariableEnum.QUERYCOLUMNS.getName(), queryColumns);
 
         //动态组件变量
-        List<DynamicFormCfgVO> dynamicConfigs = JSONUtil.toList(
-                JSONUtil.parseArray(genConfig.get(Contants.FIELD_DYNAMICFORM)), DynamicFormCfgVO.class);
+        List<DynamicFormCfg> dynamicConfigs = JSONUtil.toList(
+                JSONUtil.parseArray(genConfig.get(Contants.FIELD_DYNAMICFORM)), DynamicFormCfg.class);
         putDynamicConfigs(variableMaps, dynamicConfigs);
 
 
@@ -262,11 +262,11 @@ public class GenServiceImpl implements GenService {
      * @param variableMaps
      * @param dynamicConfigs
      */
-    private void putDynamicConfigs(Map<String, Object> variableMaps, List<DynamicFormCfgVO> dynamicConfigs) {
+    private void putDynamicConfigs(Map<String, Object> variableMaps, List<DynamicFormCfg> dynamicConfigs) {
         if (Objects.isNull(dynamicConfigs) || dynamicConfigs.size() == 0) {
             return;
         }
-        for (DynamicFormCfgVO dynamicConfig : dynamicConfigs) {
+        for (DynamicFormCfg dynamicConfig : dynamicConfigs) {
             Object value = paraseValue(variableMaps, dynamicConfig.getComponentValue());
             variableMaps.put(dynamicConfig.getComponentName(), value);
         }

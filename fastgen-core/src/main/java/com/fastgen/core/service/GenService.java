@@ -1,7 +1,7 @@
 package com.fastgen.core.service;
 
-import com.fastgen.core.model.ColumnInfo;
-import com.fastgen.core.model.TableInfo;
+import com.fastgen.core.contract.ColumnInfo;
+import com.fastgen.core.contract.TableInfo;
 
 import java.util.List;
 

@@ -1,8 +1,10 @@
 package com.fastgen.core.controller;
 
 import com.fastgen.core.base.Response;
-import com.fastgen.core.model.BaseConfigInfo;
+import com.fastgen.core.contract.BaseConfigInfo;
+import com.fastgen.core.entity.ProjectInfo;
 import com.fastgen.core.service.ConfigService;
+import com.fastgen.core.service.ProjectInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ import java.util.Map;
 @RequestMapping("/config")
 public class ConfigController {
     @Autowired
+    private ProjectInfoService projectInfoService;
+    @Autowired
     private ConfigService configService;
 
     /**
@@ -29,6 +33,19 @@ public class ConfigController {
      */
     @GetMapping("/getFtlNames")
     public Response<List<String>> getFtlNames() {
+        ProjectInfo projectInfo = ProjectInfo.builder()
+                .projectName("projectName123")
+                .projectPath("./projects/project1")
+                .author("zet")
+                .convered(false)
+                .templates("Sys-Variable.ftl")
+                .dbType("com.alibaba.druid.pool.DruidDataSource")
+                .dbDriverClassName("com.mysql.jdbc.Driver")
+                .dbUrl("jdbc:mysql://localhost:3306/test_sample?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false")
+                .dbUsername("root")
+                .dbPassword("123456").build();
+
+        projectInfoService.save(projectInfo);
         List<String> names = configService.templateNames();
         return Response.success(names, "获取成功");
     }

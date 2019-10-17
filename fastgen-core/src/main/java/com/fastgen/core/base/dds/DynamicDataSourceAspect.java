@@ -1,7 +1,6 @@
 package com.fastgen.core.base.dds;
 
-import com.fastgen.core.base.dds.DynamicDataSourceContextHolder;
-import com.fastgen.core.model.BaseConfigItem;
+import com.fastgen.core.contract.BaseConfigItem;
 import com.fastgen.core.service.ConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -12,9 +11,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-
-import javax.annotation.Resource;
 
 /**
  * controller 层入参校验切面

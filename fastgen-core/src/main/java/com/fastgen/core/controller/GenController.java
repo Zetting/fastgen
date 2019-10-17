@@ -1,8 +1,8 @@
 package com.fastgen.core.controller;
 
 import com.fastgen.core.base.Response;
-import com.fastgen.core.model.ColumnInfo;
-import com.fastgen.core.model.TableInfo;
+import com.fastgen.core.contract.ColumnInfo;
+import com.fastgen.core.contract.TableInfo;
 import com.fastgen.core.service.GenService;
 import com.fastgen.core.util.PageUtil;
 import org.springframework.beans.factory.annotation.Autowired;

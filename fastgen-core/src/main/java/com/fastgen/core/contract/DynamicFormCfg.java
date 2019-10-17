@@ -1,4 +1,4 @@
-package com.fastgen.core.model;
+package com.fastgen.core.contract;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import lombok.Data;
  * @date:2019/10/10
  */
 @Data
-public class DynamicFormCfgVO {
+public class DynamicFormCfg {
     /**
      * 组件标签
      */
